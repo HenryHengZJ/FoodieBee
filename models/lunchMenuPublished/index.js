@@ -11,11 +11,14 @@ var menuSchema = mongoose.Schema({
 	descrip: String,
 	markitem: [String],
 	priceperunit: Number,
+	discountedprice: Number,
 	soldamount: {
         type: Number,
         default: 0
     },
 	src: String,
+	activeDay: String,
+	selected: Boolean,
 });
 
 //Connect to specific database

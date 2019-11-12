@@ -19,7 +19,6 @@ class NavBar extends Component {
       isOpen: false,
       dropDown: false,
       userName: "",
-      signInHide: false,
       goCateringHover: this.props.catering === true ? true : false,
       goLunchHover: this.props.catering === false ? true : false,
       aboutUsHover: false,
@@ -32,15 +31,10 @@ class NavBar extends Component {
 
   componentDidMount() {
 
-    this.setState({
-      signInHide: typeof this.props.signInHide !== 'undefined' ? this.props.signInHide : false
-    })
-
     if (typeof Cookies.get('userName') !== 'undefined') {
     //  alert(Cookies.get('userName'))
       this.setState({
         userName: Cookies.get('userName'),
-        signInHide: true
       })
     }
   }
@@ -69,6 +63,10 @@ class NavBar extends Component {
 
   aboutUsClicked = () => {
     Router.push(`/aboutus`)
+  }
+
+  caterersignupClicked = () => {
+    Router.push(`/caterersignup`)
   }
 
   contactUsClicked = () => {
@@ -109,12 +107,12 @@ class NavBar extends Component {
   render() {
     const {
       theme,
-      catererSignInVisible,
+      stickTop,
       catering,
       landingpage,
     } = this.props;
 
-    const backgroundColorVal = theme === 'dark' ? this.state.isOpen ? '#696969' : 'transparent' : 'rgba(211,211,211,0.3)' ;
+    const backgroundColorVal = theme === 'dark' ? this.state.isOpen ? '#696969' : 'transparent' : '#F5F5F5' ;
     const boxShadowVal = theme === 'dark' ? 'none' : '0px 0px 3px #9E9E9E';
     const lightVal = theme === 'dark' ? false : true;
     const darkVal = theme === 'dark' ? true : false;
@@ -123,54 +121,29 @@ class NavBar extends Component {
     const userLoggedInVal = this.state.userName === "" ? false : true
     const cateringVal = catering ? catering : false
     const landingpageVal = landingpage ? landingpage : false
+    const stickyVal = stickTop ? "top" : null
 
     return (
-      <div>
-        <Navbar style={{padding: 0, margin: 0, backgroundColor: backgroundColorVal, boxShadow: boxShadowVal}} light={lightVal} dark={darkVal} expand="md">
+        <Navbar style={{padding: 0, margin: 0, backgroundColor: backgroundColorVal, boxShadow: boxShadowVal}} light={lightVal} dark={darkVal} expand="md" sticky={stickyVal}>
           <NavbarBrand style={{padding: 0, margin: 0,}} href="/">
             <img style={{objectFit: 'cover', height: 50, width: 160, marginLeft: 20, marginTop: 10}} src={imgsrc} alt="FoodieBee Logo"/>
           </NavbarBrand>
           <NavbarToggler onClick={this.toggle} />
           <Collapse isOpen={this.state.isOpen} navbar>
             <Nav className="ml-auto" navbar>
-
-             
-              <NavItem >
-                
-                <NavLink href="/" onClick={e => this.goLunchClicked(e)} style={{ marginLeft: 10, cursor: 'pointer', color: theme === "dark" ? "white" : null, fontWeight: '600', fontSize: 15, paddingLeft: 10, paddingRight: 10, backgroundColor: this.state.isOpen ? "transparent" : this.state.goLunchHover ? "#20a8d8" : "transparent", borderRadius: 5}} target="_blank">Go Lunch</NavLink>
-                
-              </NavItem>
-              
               <NavItem>
-             
-                <NavLink href="/catering" onClick={e => this.goCateringClicked(e)} style={{ marginLeft: 10,cursor: 'pointer', color: theme === "dark" ? "white" : null, fontWeight: '600', fontSize: 15, paddingLeft: 10, paddingRight: 10, backgroundColor: this.state.isOpen ? "transparent" : this.state.goCateringHover ? "#20a8d8" : "transparent", borderRadius: 5}} target="_blank">Go Catering</NavLink>
-                
-              </NavItem>
-              
-
-              <NavItem>
-                <NavLink href="/aboutus" onClick={e => this.aboutUsClicked(e)} style={{ cursor: 'pointer', color: this.state.aboutUsHover ? "#20a8d8" : colorVal, fontWeight: '600', fontSize: 15, paddingLeft: 20, paddingRight: 20}} target="_blank">About Us</NavLink>
+                <NavLink href="/caterersignup" onClick={e => this.caterersignupClicked(e)} style={{ cursor: 'pointer', color: this.state.aboutUsHover ? "#20a8d8" : colorVal, fontWeight: '600', fontSize: 15, paddingLeft: 20, paddingRight: 20}} target="_blank">For Restaurants</NavLink>
               </NavItem>
               <NavItem>
                 <NavLink href="/contactus" onClick={e => this.contactUsClicked(e)} style={{ cursor: 'pointer', color: this.state.contactUsHover ? "#20a8d8" : colorVal, fontWeight: '600', fontSize: 15, paddingLeft: 20, paddingRight: 20}} target="_blank">Contact</NavLink>
               </NavItem>
-              {!this.state.signInHide ?
-              <NavItem>
-                <NavLink href="/login" onClick={e => this.props.signIn(e)} style={{ cursor: 'pointer', color: this.state.signInHover ? "#20a8d8" : colorVal, fontWeight: '600', fontSize: 15, paddingLeft: 20, paddingRight: 20}} target="_blank">Sign In</NavLink>
-              </NavItem>
-              : null}
-              {catererSignInVisible ?
-              <NavItem>
-                <NavLink href="https://caterer.foodiebee.eu" onClick={e => this.props.caterersignIn(e)} style={{ cursor: 'pointer', color: this.state.catererSignInHover ? "#20a8d8" : colorVal, fontWeight: '600', fontSize: 15, paddingLeft: 20, paddingRight: 20}} target="_blank">Caterer Sign In</NavLink>
-              </NavItem>
-              : null }
-            
+
               {userLoggedInVal ?
               <NavItem>
                 <UncontrolledDropdown isOpen={this.state.dropDown}  toggle={() => this.toggleDropDown()}>
                   <DropdownToggle
                     style={{
-                      color: theme === 'dark' ? "white" : "rgba(0,0,0, 0.5)",
+                      color: theme === 'dark' ? "white" : "#F5F5F5",
                       borderWidth: 0,
                       marginRight:10,
                       backgroundColor: "transparent",
@@ -189,20 +162,22 @@ class NavBar extends Component {
                   </DropdownMenu>
                 </UncontrolledDropdown>
               </NavItem>
-              : null}
+              : 
+              <NavItem>
+                <NavLink href="/login" onClick={e => this.props.signIn(e)} style={{ cursor: 'pointer', color: this.state.signInHover ? "#20a8d8" : colorVal, fontWeight: '600', fontSize: 15, paddingLeft: 20, paddingRight: 20}} target="_blank">Sign In</NavLink>
+              </NavItem>
+              }
 
             </Nav>
           </Collapse>
         </Navbar>
-      </div>
     );
   }
 };
 
 NavBar.propTypes = {
   theme: PropTypes.string,
-  signInHide: PropTypes.bool,
-  catererSignInVisible: PropTypes.bool,
+  stickTop: PropTypes.bool,
   catering: PropTypes.bool,
   landingpage: PropTypes.bool,
 };

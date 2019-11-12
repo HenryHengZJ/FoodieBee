@@ -108,7 +108,7 @@ class Restaurants extends Component {
         <div className="container">
           <div style={{margin:0}} className="row">
            
-            <div style={{marginTop: 60}} className="center-align">
+            <div style={{marginTop: 40}} className="center-align">
               <h2 style={{textAlign: 'center', fontSize: 34}}>Options from hundreds of restaurants</h2>
               {this.renderItems()}
             </div>

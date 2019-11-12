@@ -49,7 +49,7 @@ class Shops extends Component {
 
   render() {
     return (
-      <section style={{ backgroundColor: 'white', padding: 0, paddingTop: 20, paddingBottom: 20}} id="shops" className="white">
+      <section style={{ backgroundColor: 'white', padding: 0, paddingTop: 20, paddingBottom: 40}} id="shops" className="white">
         <div className="container">
          {this.renderItems()}
         </div>

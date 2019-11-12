@@ -7,7 +7,7 @@ import Features from './Features';
 import Caterer from './Caterer';
 import Footer from '../../components/Footer'
 import Shops from './Shops';
-import AboutUs from './AboutUs';
+import JoinNow from './JoinNow';
 import Testimonial from './Testimonial';
 import Router from 'next/router'
 import Layout from '../../components/Layout'
@@ -64,8 +64,9 @@ class LandingPage extends Component {
           <Hero/>
           <Features findFoodNow={e=>this.findFoodNow(e)}/>
           <Restaurants restaurantClicked={e=>this.restaurantClicked(e)}/>
-          <Testimonial/>
-          <AboutUs/>
+          <Caterer/>
+          <Shops/>
+          <JoinNow/>
           <Footer />
         </div>
       </Layout>

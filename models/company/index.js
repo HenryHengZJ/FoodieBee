@@ -2,6 +2,12 @@
 var mongoose = require('mongoose');
 const Schema = mongoose.Schema
 const ObjectId = Schema.Types.ObjectId;
+
+var dailyCatererSchema = mongoose.Schema({
+	count: Number,
+	date: String,
+    catererID: ObjectId,
+});
  
 // define the schema for our companySchema model
 var companySchema = mongoose.Schema({
@@ -10,6 +16,7 @@ var companySchema = mongoose.Schema({
 	companyCity: String,
 	companyDistrict: String,
 	location: { type: {type:String}, coordinates: [Number]},
+	dailyCaterer: [dailyCatererSchema],
 }, {
     timestamps: true
 });

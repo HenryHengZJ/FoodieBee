@@ -32,33 +32,23 @@ const {STIRPE_CLIENT_KEY} = publicRuntimeConfig
 
 class SearchLunch extends Component {
 
-  static async getInitialProps({query: { companyID, date }}) {
+  static async getInitialProps({query: { companyID }}) {
 
-    var url = `${server}${apis.GETdailyMenu}`
+    var url = `${server}${apis.GETlunchmenu}`
     var locationquerystring = "";
-    var datequerystring = "";
-  
-    var selectedDate = "";
-    
+
     if (typeof companyID !== 'undefined') {
       locationquerystring = "?companyID=" + companyID
       url = url + locationquerystring
     }
-   
-    if (typeof date !== 'undefined') {
-      datequerystring = "&date=" + date
-      url = url + datequerystring
-      selectedDate = date
-    }
+
     const res = await axios.get(url);
     const data = await res.data;
 
     return {
       locationquerystring: locationquerystring, 
-      datequerystring: datequerystring,
       dailyMenu: data,
       companyID: companyID,
-      selectedDate,
     };
   }
 
@@ -119,8 +109,6 @@ class SearchLunch extends Component {
           empty = {this.props.dailyMenu}
           companyID = {this.props.companyID}
           locationquerystring = {this.props.locationquerystring}
-          datequerystring = {this.props.datequerystring}
-          selectedDate = {this.props.selectedDate}
           companyNameChanged={(companyID) => this.getCompanyName(companyID)}
         />
       </Elements>

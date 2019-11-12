@@ -93,13 +93,6 @@ class Hero extends React.Component {
     });
   }
 
-  getMonday = d => {
-    d = new Date(d);
-    var day = d.getDay(),
-      diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
-    return new Date(d.setDate(diff));
-  };
-
   getStarted = () => {
     if (this.state.selectedCompany === null)  {
       this.setState({
@@ -110,19 +103,8 @@ class Hero extends React.Component {
       //Disable Button Function
     }
     else {
-      //var todayDate = moment(new Date()).format("YYYY-MM-DD")
-      var todayDate = moment(new Date()).format("YYYY-MM")  + "-0" + moment(new Date()).day()
-      var mondayOfTheWeek = this.getMonday(new Date());
-
-      if (new Date().getDay() === 0 || new Date().getDay() === 6) {
-        //detect if weekends, if yes, get next monday
-        mondayOfTheWeek = new Date( mondayOfTheWeek.setDate(mondayOfTheWeek.getDate() + 7));
-        //todayDate = moment(mondayOfTheWeek).format("YYYY-MM-DD")
-        todayDate = moment(mondayOfTheWeek).format("YYYY-MM")  + "-0" + moment(mondayOfTheWeek).day()
-      }
-
       sessionStorage.setItem('selectedCompany', JSON.stringify(this.state.selectedCompany));
-      Router.push(`/searchlunch?companyID=${this.state.selectedCompany.value}&date=${todayDate}`, `/searchlunch?companyID=${this.state.selectedCompany.value}&date=${todayDate}`)
+      Router.push(`/searchlunch?companyID=${this.state.selectedCompany.value}`, `/searchlunch?companyID=${this.state.selectedCompany.value}`)
     }
   }
 
@@ -188,7 +170,7 @@ class Hero extends React.Component {
     return (
       <section
         id="hero"
-        style={{ height: 600, marginTop: -70, backgroundImage: 'url(' + img.golunch_wallpaper_dimmed + ')', backgroundSize: 'cover'}}
+        style={{ height: 600, marginTop: -70, backgroundImage: 'url(' + img.golunch_wallpaper3 + ')', backgroundSize: 'cover'}}
       >
           <Row style={{margin:0, marginTop: 150, display:'flex',}} >
             
@@ -200,7 +182,7 @@ class Hero extends React.Component {
 
             <Col style={{textAlign: 'center', color: 'white',}} xs="12">
               <p style={{fontSize: 18, letterSpacing: 2, marginTop: 20}} className="big">
-                Lunch delivered to your workplace on-time, with no delivery charges.
+                Discover daily curated lunches from your favourite local restaurants
               </p>
             </Col>
 

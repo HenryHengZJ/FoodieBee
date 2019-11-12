@@ -36,24 +36,24 @@ class Features extends React.Component {
             <Col style={{marginTop:50}}xs="12"></Col>
          
             <Col xs="6" md="3" style={{marginTop: 10, textAlign: 'center'}}>
-              <img style={{ objectFit:'cover', width: 80, height: 80 }} src={img.menu} alt="Register Account at FoodieBee Ireland -  Corporate Catering Services and Marketplace" />
+              <img style={{ objectFit:'cover', width: 80, height: 80 }} src={img.menu} alt="" />
               <h6 style={{fontWeight: '600', fontSize: 18, marginTop: 20}} >Fresh Menu</h6>
-              <p style={{marginTop: 10}} >Fresh lunch menu curated everyday from different restaurants.</p>
+              <p style={{marginTop: 10}} >Fresh lunch menus curated everyday from different restaurants.</p>
             </Col>
             <Col xs="6" md="3" style={{marginTop: 10, textAlign: 'center'}}>
-              <img style={{ objectFit:'cover', width: 80, height: 80 }} src={img.placeorder} alt="Find your favourite food caterers and perfect catering service at FoodieBee Ireland -  Corporate Catering Services and Marketplace" />
-              <h6 style={{fontWeight: '600', fontSize: 18, marginTop: 20}}>Place Order</h6>
-              <p style={{marginTop: 10}} >Pre-order for a week in advance or before 11:30 A.M everyday.</p>
+              <img style={{ objectFit:'cover', width: 80, height: 80 }} src={img.placeorder} alt="" />
+              <h6 style={{fontWeight: '600', fontSize: 18, marginTop: 20}}>Pre Order</h6>
+              <p style={{marginTop: 10}} >Pre-order from 5pm the day before until 10.30am on the actual day.</p>
             </Col>
             <Col xs="6" md="3" style={{marginTop: 10, textAlign: 'center'}}>
-              <img style={{ objectFit:'cover', width: 80, height: 80 }} src={img.bank1} alt="Effortless online ordering and secure transactions at FoodieBee Ireland -  Corporate Catering Services and Marketplace" />
-              <h6 style={{fontWeight: '600', fontSize: 18, marginTop: 20}}>Pay Online</h6>
-              <p style={{marginTop: 10}} >Effortless and secure online transactions.</p>
+              <img style={{ objectFit:'cover', width: 80, height: 80 }} src={img.queue} alt="" />
+              <h6 style={{fontWeight: '600', fontSize: 18, marginTop: 20}}>Skip Queue</h6>
+              <p style={{marginTop: 10}} >Skip the long queue and pick up directly from the store.</p>
             </Col>
             <Col xs="6" md="3" style={{marginTop: 10, textAlign: 'center'}}>
-              <img style={{ objectFit:'cover', width: 80, height: 80 }} src={img.eat1} alt="Wait for your food to be delivered or pickup at counter through FoodieBee Ireland -  Corporate Catering Services and Marketplace" />
-              <h6 style={{fontWeight: '600', fontSize: 18, marginTop: 20}}>Enjoy and Eat</h6>
-              <p style={{marginTop: 10}} >We will notify you once it's delivered. Bon Appetite!</p>
+              <img style={{ objectFit:'cover', width: 80, height: 80 }} src={img.eat1} alt="" />
+              <h6 style={{fontWeight: '600', fontSize: 18, marginTop: 20}}>Enjoy, Eat, Repeat</h6>
+              <p style={{marginTop: 10}} >Enjoy best food from restaurants everyday at a fraction of the price.</p>
             </Col>
          
             <div style={{textAlign: 'center', marginTop: 20 }} className="center-align">

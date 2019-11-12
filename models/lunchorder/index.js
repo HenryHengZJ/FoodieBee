@@ -14,6 +14,7 @@ var cartSchema = mongoose.Schema({
 var orderSchema = mongoose.Schema({
 	orderItemID: ObjectId,
 	orderItem: [cartSchema],
+	orderDate: Date,
 	catererID: ObjectId,
 	customerID: ObjectId,
 	customerCompanyID: ObjectId,

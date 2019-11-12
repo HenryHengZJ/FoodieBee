@@ -20,6 +20,9 @@ export default {
     GETcompany: "/company/getcompany",
     POSTcompany: "/company/postcompany",
 
+    /*Lunch Menu API*/
+    GETlunchmenu: "/lunchMenuPublished/get_lunchmenu_published",
+
     /*Menu API*/
     GETmenu: "/menuPublished/getmenu",
 

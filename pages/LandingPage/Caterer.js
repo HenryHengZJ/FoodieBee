@@ -20,40 +20,26 @@ class Caterer extends React.Component {
     return (
       <section style={{backgroundColor: 'white'}} id="Caterer" className="white">
         <div className="container">
-          <Row>
-            <Col xs="12" md="6" > 
-              <h2 style={{fontSize: 34}}>Full functionalities dashboard for caterer </h2>
-              <p style={{marginTop: 30, fontSize: 16}}>You can put all your effort perfecting your dishes. We handle the rest for you. Using FoodieBee caterer platform, you can enjoy:</p>
-
-              <Table borderless style={{ marginTop: 30}}>
-                <tbody>
-                  <tr>
-                    <td><img style={ { objectFit:'cover', marginTop:5, width: 25, height: 25 }} src={'/static/checked.png'} alt=""/></td>
-                    <td style={{fontSize: 16}}><b>More orders.</b> We connect nationwide businesspeople with our caterer partners.</td>
-                  </tr>
-                  <tr>
-                    <td><img style={ { objectFit:'cover', marginTop:5, width: 25, height: 25 }} src={'/static/checked.png'} alt=""/></td>
-                    <td style={{fontSize: 16}}><b>Operational support.</b> When customers need help, they talk to us. We make sure they’re happy, and you get some relief from distracting phone calls.</td>
-                  </tr>
-                  <tr>
-                    <td><img style={ { objectFit:'cover', marginTop:5, width: 25, height: 25 }} src={'/static/checked.png'} alt=""/></td>
-                    <td style={{fontSize: 16}}><b>Wider insight.</b> Which marketing channels drive the most orders? What do customers say when reviewing you? We give you fast access to the info that matters most.</td>
-                  </tr>
-                </tbody>
-              </Table>
+          <Row style={{marginTop: 40}}>
+            <Col style={{marginTop: 50}} xs="12" md="6" > 
+              <h2 style={{fontSize: 34}}>Restaurant? Be a partner</h2>
+              <p style={{marginTop: 30, fontSize: 16}}>Join our community of great restaurants serving thousands of hungry employees during lunch time.</p>
 
               <Link href="/caterersignup">
-              <div className="text-center"> 
-                <Button  style={{fontSize: 18, height: 50, marginTop: 10, marginBottom: 30,}} className="bg-primary" size="lg" color="primary">Register As Caterer</Button>
-              </div>
+                <div className="text-start"> 
+                  <Button style={{fontSize: 18, height: 50, marginTop: 10, marginBottom: 30,}} className="bg-primary" size="lg" color="primary">Learn More</Button>
+                </div>
               </Link>
     
             </Col>
+
             <Col xs="12" md="6" >
-              <img style={ { objectFit:'cover', width: '100%', height: '100%' }} src={img.caterer_dashboard} alt="FoodieBee Ireland Catering Marketplace Caterer's Dashboard"/>
+              <div style={{width: '100%', height: 280, position: 'relative', overflow: 'hidden', borderRadius: '5%'}}>
+                <img style={{ objectFit:'cover', width: '100%', height: '100%', }} src={img.restaurant_owner} alt=""/>
+              </div>
             </Col>
 
-            <div style={{height: 1, marginTop:100, opacity: 0.2, backgroundColor: 'gray', borderWidth: 1}} className="col l1"></div>
+            <div style={{height: 1, marginTop:70, opacity: 0.2, backgroundColor: 'gray', borderWidth: 1}} className="col l1"></div>
 
           </Row>
 

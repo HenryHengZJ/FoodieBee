@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var LunchOrder = require('../../models/lunchorder');
+var LunchOrder = require('../../models/lunchOrder');
 var Customer = require('../../models/customer');
 var Caterer = require('../../models/caterer');
 var ObjectId = require('mongodb').ObjectID;
@@ -10,6 +10,23 @@ var twiliocall = require('../../twilioAction')
 const VoiceResponse = require('twilio').twiml.VoiceResponse;
 var mail = require('../../nodeMailerWithTemp');
 require('dotenv').config();
+
+
+router.post('/addlunchorder', (req, res) => {
+	
+    // create the new menu
+    var newData = req.body
+	var newLunchOrder = new LunchOrder(newData);
+	newLunchOrder.save(function(err, doc, numAffected) {
+        if (err) {
+            return res.status(500).send({ error: err });
+        }
+        else {
+            res.status(200).json(doc)
+        }
+    });
+
+});
 
 router.get('/getlunchorder', passport.authenticate('jwt', {session: false}),  (req, res) => {
 
@@ -22,7 +39,7 @@ router.get('/getlunchorder', passport.authenticate('jwt', {session: false}),  (r
     if (typeof req.query.lteDate !== 'undefined' && typeof req.query.gteDate !== 'undefined') {
 		var gteDate = moment(req.query.gteDate, 'DD MMM, YYYY').toDate()
 		var lteDate = moment(req.query.lteDate, 'DD MMM, YYYY').add(1, 'days').toDate()
-        matchquery.createdAt = {$gte: new Date(gteDate.toISOString()),$lte: new Date(lteDate.toISOString())}
+        matchquery.orderDate = {$gte: new Date(gteDate.toISOString()),$lte: new Date(lteDate.toISOString())}
     }
 	
     /*LunchOrder.find(matchquery).sort({createdAt: -1}).exec((err,doc) => {

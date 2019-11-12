@@ -139,6 +139,10 @@ class Banner extends React.Component {
     })
   }
 
+  restaurantLogInClick = () => {
+    window.open('https://caterer.foodiebee.eu', '_blank');
+  }
+
   onGetStartedClick = () => {
     const {
       restaurantName,
@@ -286,7 +290,7 @@ class Banner extends React.Component {
             }}
             xs={isMobile ? "12" : "6"}
           >
-            <h1 style={{ fontSize: 40 }}>Caterers, join us now!</h1>
+            <h1 style={{ fontSize: 40 }}>Restaurants, join us now!</h1>
             <h6 style={{ lineHeight:2, fontSize: 18, letterSpacing: 2, marginTop: 20 }}>
               Orders management, marketting channels, reviews and feedback.
               There are much more benefits when you join us.
@@ -353,6 +357,19 @@ class Banner extends React.Component {
                   onClick={() => this.onGetStartedClick()}
                 >
                   {this.state.getStarting ? "Sending" : "Get Started"}
+                </Button>
+                <Button
+                  style={{
+                    boxShadow: "none",
+                    background: "none",
+                    fontWeight: "500",
+                    fontSize: 16
+                  }}
+                  block
+                  color="link"
+                  onClick={() => this.restaurantLogInClick()}
+                >
+                  Have an account? Log In
                 </Button>
               </CardBody>
             </Card>
