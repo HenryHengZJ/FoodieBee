@@ -33,11 +33,6 @@ import Select from "react-select";
 import Lottie from 'react-lottie';
 import { ToastContainer, toast } from 'react-toastify';
 import { throwStatement } from 'babel-types';
-import GoogleMapReact from 'google-map-react';
-import getConfig from 'next/config'
-
-const {publicRuntimeConfig} = getConfig()
-const {GOOGLE_API_KEY} = publicRuntimeConfig
 
 const glutenfreeIcon = '/static/glutenfree1.png';
 const hotIcon = '/static/fire.png';
@@ -95,63 +90,55 @@ const customStyles = {
   })
 };
 
-const CenterMarker = ({}) => 
-  <img
-    style={{
-      marginLeft: -25,
-      marginTop: -45,
-      height: 40,
-      width: 40,
-      objectFit: "cover"
-    }}
-    src={img.location_pin}
-    alt=""
-  />;
-
-const RedMarker = ({}) => 
-  <img
-    style={{
-      marginLeft: -15,
-      marginTop: -45,
-      height: 30,
-      width: 30,
-      objectFit: "cover"
-    }}
-    src={img.mapmarker_red}
-    alt=""
-  />;
-  
 class SearchLunchChild extends Component {
 
   static async getInitialProps({query: { companyID, date }}) {
 
-    var url = `${server}${apis.GETlunchmenu}`
+    var url = `${server}${apis.GETdailyMenu}`
     var locationquerystring = "";
-
+    var datequerystring = "";
+  
+    var selectedDate = "";
+    
     if (typeof companyID !== 'undefined') {
       locationquerystring = "?companyID=" + companyID
       url = url + locationquerystring
     }
-
+   
+    if (typeof date !== 'undefined') {
+      datequerystring = "&date=" + date
+      url = url + datequerystring
+      selectedDate = date
+    }
+    console.log(url)
     const res = await axios.get(url);
     const data = await res.data;
-   
+    console.log(`Show data fetched. Count: ${data.length}`);
+    console.log(`Show data fetched: ${data}`);
     return {
       locationquerystring: locationquerystring, 
+      datequerystring: datequerystring,
       dailyMenu: data,
       companyID: companyID,
+      selectedDate,
     };
   }
 
   componentWillMount() {
+    console.log("componentWillMount")
     this.setState({
       dailyMenu: this.props.dailyMenu,
-      loading: false,
+      loading: this.props.dailyMenu.length > 0 ? true : false,
       empty: this.props.dailyMenu.length > 0 ? false : true,
       companyID: this.props.companyID,
       locationquerystring: this.props.locationquerystring,
+      datequerystring: this.props.datequerystring,
+      selectedDate: this.props.selectedDate,
     }, () => {
       this.getCompanyAddress(this.state.companyID)
+      if (!this.state.empty) {
+        this.resturctureData(this.state.dailyMenu)
+      }
     })
   }
 
@@ -169,18 +156,25 @@ class SearchLunchChild extends Component {
       companyList: [],
       baseurl: "/searchlunch",
       locationquerystring: "",
+      datequerystring: "",
       companyID: "",
       isMobile: null,
       loading: true,
       empty: false,
       address: "",
+      selectedDate: "",
       dropDownAddress: false,
       isSearchBarOpen: false,
+      dayList: [],
+      selectedDay: {},
       selectedCompany: {},
       menuModalOpen: false,
       primeModalOpen: false,
       activeMenu: null,
-      activeIndex: -1,
+      quantity: [1,2,3,4,5,6,7,8,9,10,11,12,13],
+      selectedQuantity: 1,
+      selectedPrice: 0,
+
       holdername: '',
       cardElement: null,
       isCardHolderNameEmpty: false,
@@ -192,22 +186,80 @@ class SearchLunchChild extends Component {
       customerpaymentaccountdetails: [],
 
       customerIsPrime: false,
-      center: null,
-      isMapView: false,
-      searchName: "",
-      currentDateString: "",
     }
   }
 
-  componentDidMount() {
-    
-    var currentDate = moment().toDate();
 
-    var currentDateString = moment(currentDate).format("ddd, DD MMM YYYY")
+  componentDidMount() {
+
+    var days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+    var dayList = [];
+    var selectedDay = {};
+
+    var todayDate = new Date();
+    var mondayOfTheWeek = this.getMonday(todayDate);
+    var dayOfTheWeek = null;
+
+    if (todayDate.getDay() === 0 || todayDate.getDay() === 6) {
+      //detect if weekends, if yes, get next monday
+      mondayOfTheWeek = new Date(
+        mondayOfTheWeek.setDate(mondayOfTheWeek.getDate() + 7)
+      );
+
+      dayOfTheWeek = mondayOfTheWeek;
+
+      for (let i = 0; i < 5; i++) {
+        var newAddedDate = {
+          date: dayOfTheWeek.getDate() + "",
+          day: days[i],
+          hovered: i === 0 ? true : false,
+          fullDate: new Date(
+            dayOfTheWeek.setDate(dayOfTheWeek.getDate() + 0)
+          )
+        };
+
+        dayList.push(newAddedDate);
+
+        if (i === 0) {
+          selectedDay = newAddedDate;
+        }
+
+        dayOfTheWeek = new Date(
+          dayOfTheWeek.setDate(dayOfTheWeek.getDate() + 1)
+        );
+
+      }
+    } else {
+      dayOfTheWeek = mondayOfTheWeek;
+
+      for (let i = 0; i < 5; i++) {
+
+        var newAddedDate2 = {
+          date: dayOfTheWeek.getDate() + "",
+          day: days[i],
+          hovered: dayOfTheWeek - todayDate === 0 ? true : false,
+          fullDate: new Date(
+            dayOfTheWeek.setDate(dayOfTheWeek.getDate() + 0)
+          )
+        };
+
+        dayList.push(newAddedDate2);
+
+        if (dayOfTheWeek - todayDate === 0) {
+          selectedDay = newAddedDate2;
+        }
+
+        dayOfTheWeek = new Date(
+          dayOfTheWeek.setDate(dayOfTheWeek.getDate() + 1)
+        );
+       
+      }
+    }
 
     this.setState({
-      currentDateString
-    })
+      dayList: dayList,
+      selectedDay
+    });
 
     if (window.innerWidth < 800) {
       this.setState({
@@ -242,9 +294,11 @@ class SearchLunchChild extends Component {
     
       this.setState({
         dailyMenu: data,
-        empty: data.length > 0 ? false : true,
-        loading: false
+        empty: data.length > 0 ? false : true
       }, () => {
+        if (!this.state.empty) {
+          this.resturctureData()
+        }
         this.getCompanyAddress(this.state.companyID)
       })
     })
@@ -272,14 +326,8 @@ class SearchLunchChild extends Component {
           label: data[0].companyName + " | " + data[0].companyAddress
         }
 
-        var center = {
-          lat: data[0].location.coordinates[0],
-          lng: data[0].location.coordinates[1],
-        }
-
         this.setState({
-          selectedCompany,
-          center,
+          selectedCompany
         })
       }
     })
@@ -311,16 +359,12 @@ class SearchLunchChild extends Component {
       });
 
   };
-  
-  toggleView= () => {
-    this.setState({
-      isMapView: !this.state.isMapView
-    });
-  }
 
   toggleMenuModal() {
     this.setState({
       menuModalOpen: !this.state.menuModalOpen,
+      selectedQuantity: 1,
+      selectedPrice: 0,
     });
   }
 
@@ -337,13 +381,38 @@ class SearchLunchChild extends Component {
     });
   }
 
+  resturctureData() {
+    console.log(this.state.dailyMenu)
+    var result = this.state.dailyMenu[0].menuitems.reduce(function(r, a) {
+      r[a.category] = r[a.category] || [];
+      r[a.category].push(a);
+      return r;
+    }, Object.create(null));
+
+    var finaldataAry = []
+    var updateData = {
+      catererDetails: this.state.dailyMenu[0].catererDetails,
+      menuitems: result
+    }
+    finaldataAry.push(updateData)
+
+    this.setState({
+      dailyMenu: finaldataAry,
+      loading: false
+    })
+  }
+
+
   signIn(e) {
     e.preventDefault()
 
     var url = this.state.baseurl;
     var locationquerystring = this.state.locationquerystring;
-   
-    url = url + locationquerystring; 
+    var datequerystring = this.state.datequerystring;
+
+    url = url + locationquerystring + datequerystring ; 
+
+    console.log('signinurl = ',url) 
 
     Router.push({
       pathname: '/login',
@@ -351,11 +420,10 @@ class SearchLunchChild extends Component {
     })
   }
 
-  menuItemClicked = (index) => {
+  menuItemClicked = (parentIndex, category, childIndex) => {
     this.setState({
       menuModalOpen: !this.state.menuModalOpen,
-      activeMenu: this.state.dailyMenu[index],
-      activeIndex: index,
+      activeMenu: this.state.dailyMenu[parentIndex].menuitems[category][childIndex],
     });
   };
 
@@ -364,8 +432,9 @@ class SearchLunchChild extends Component {
 
       var url = this.state.baseurl;
       var locationquerystring = this.state.locationquerystring;
+      var datequerystring = this.state.datequerystring;
 
-      url = url + locationquerystring; 
+      url = url + locationquerystring + datequerystring ; 
 
       Router.push({
         pathname: '/addcompany',
@@ -382,15 +451,17 @@ class SearchLunchChild extends Component {
 
         var url = this.state.baseurl;
         var locationquerystring = this.state.locationquerystring;
+        var datequerystring = this.state.datequerystring;
 
         locationquerystring = "?companyID=" + this.state.selectedCompany.value
 
-        url = url + locationquerystring; 
-        var fullapiurl = apis.GETlunchmenu + locationquerystring;
+        url = url + locationquerystring + datequerystring; 
+        var fullapiurl = apis.GETdailyMenu + locationquerystring + datequerystring;
 
         this.setState({
           loading: true,
           locationquerystring,
+          datequerystring,
         },() => {
           this.refObj.current.scrollIntoView();
           window.history.pushState(null, '', url);    
@@ -400,22 +471,6 @@ class SearchLunchChild extends Component {
       })
     }
   };
-
-  
-  searchNameClicked = () => {
-    var url = this.state.baseurl;
-    var locationquerystring = this.state.locationquerystring;
-    url = url + locationquerystring; 
-    var fullapiurl = apis.GETlunchmenu + locationquerystring + "&mealTitle=" + this.state.searchName;
-
-    this.setState({
-      loading: true,
-    },() => {
-      this.refObj.current.scrollIntoView();
-      window.history.pushState(null, '', url);    
-      this.getDataFromDb(fullapiurl)
-    })
-  }
 
   doSearch = (searchword) => {
     if(this.timeout) clearTimeout(this.timeout);
@@ -452,22 +507,102 @@ class SearchLunchChild extends Component {
       })
     });
   }
+  
+  handleDateSearch = (selectedDate) => {
+    var url = this.state.baseurl;
+    var locationquerystring = this.state.locationquerystring;
+    var datequerystring = this.state.datequerystring;
+   
+    datequerystring = "&date=" + selectedDate;
 
-  hoverItem = (index) => {
+    url = url + locationquerystring + datequerystring; 
+    var fullapiurl = apis.GETdailyMenu + locationquerystring + datequerystring;
+
     this.setState({
-      activeIndex: index
+      loading: true,
+      locationquerystring,
+      datequerystring,
+    },() => {
+      this.refObj.current.scrollIntoView();
+      window.history.pushState(null, '', url);    
+      this.getDataFromDb(fullapiurl)
     })
   }
 
-  unhoverItem = (index) => {
-    this.setState({
-      activeIndex: this.state.menuModalOpen ? index : -1
-    })
-  }
-
-  openMaps = (lat, lng) => {
-    window.open("https://maps.google.com?q=" + lat + "," + lng);
+  getMonday = d => {
+    d = new Date(d);
+    var day = d.getDay(),
+      diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+    return new Date(d.setDate(diff));
   };
+
+  hoverDate = index => {
+    var dayList = this.state.dayList.slice();
+    if (
+      JSON.stringify(this.state.selectedDay) !== JSON.stringify(dayList[index])
+    ) {
+      dayList[index].hovered = true;
+    }
+    this.setState({
+      dayList
+    });
+  };
+
+  unhoverDate = index => {
+    var dayList = this.state.dayList.slice();
+    if (
+      JSON.stringify(this.state.selectedDay) !== JSON.stringify(dayList[index])
+    ) {
+      dayList[index].hovered = false;
+    }
+    this.setState({
+      dayList
+    });
+  };
+
+  selectDateClicked = index => {
+    var dayList = this.state.dayList.slice();
+
+    for (let i = 0; i < dayList.length; i++) {
+      dayList[i].hovered = false;
+    }
+
+    dayList[index].hovered = true;
+    var selectedDay = dayList[index];
+
+    this.setState({
+      selectedDay,
+      dayList,
+      selectedDate: moment(selectedDay.fullDate).format("YYYY-MM-DD") 
+    }, () => {
+      /*Just to set date to 01, 02, 03, 04, 05*/
+     // var day = moment(selectedDay.fullDate).format("YYYY-MM")  + "-0" + moment(selectedDay.fullDate).day()
+      var day =  moment(selectedDay.fullDate).format("YYYY-MM-DD");
+      this.handleDateSearch(day)
+      sessionStorage.setItem('selectedDate', day);
+    })
+  };
+
+  calculateMenuTotalPrice = (priceperunit) => {
+    const {selectedQuantity, selectedPrice} = this.state
+    var totalprice = selectedPrice;
+    var totalSelectedSelectionPrice = 0;
+
+    priceperunit = priceperunit + totalSelectedSelectionPrice;
+    totalprice = priceperunit * selectedQuantity;
+  
+    this.setState({
+      selectedPrice: totalprice
+    })
+  }
+
+  handleQuantityChange(e, priceperunit) {
+    this.setState({ 
+      selectedQuantity: e.target.value, 
+    } ,() => {
+      this.calculateMenuTotalPrice(priceperunit)
+    })
+  }
   
   findIcon = (iconname) => {
     var iconPath;
@@ -478,12 +613,6 @@ class SearchLunchChild extends Component {
     else if (iconname == 'Vegetarian') { iconPath = vegeIcon }
     else if (iconname == 'Healthy') { iconPath = healthyIcon }
     return iconPath
-  }
-
-  handleSearchNameChange(e) {
-    this.setState({
-      searchName: e.target.value,
-    });
   }
 
   handleHolderNameChange(e) {
@@ -587,8 +716,9 @@ class SearchLunchChild extends Component {
             });
             var url = this.state.baseurl;
             var locationquerystring = this.state.locationquerystring;
-            url = url + locationquerystring; 
-            var fullapiurl = apis.GETdailyMenu + locationquerystring;
+            var datequerystring = this.state.datequerystring;
+            url = url + locationquerystring + datequerystring; 
+            var fullapiurl = apis.GETdailyMenu + locationquerystring + datequerystring;
             this.getDataFromDb(fullapiurl)
           })
         } 
@@ -840,7 +970,11 @@ class SearchLunchChild extends Component {
               </tr>
               <tr>
                 <td><img style={ { objectFit:'cover', marginTop:5, width: 25, height: 25 }} src={'/static/checked.png'} alt=""/></td>
-                <td style={{fontSize: 16}}><p style={{fontWeight: '500', opacity: 0.8}}>€6 and €10 meals daily</p></td>
+                <td style={{fontSize: 16}}><p style={{fontWeight: '500', opacity: 0.8}}>€6 lite meals and €10 main meals daily</p></td>
+              </tr>
+              <tr>
+                <td><img style={ { objectFit:'cover', marginTop:5, width: 25, height: 25 }} src={'/static/checked.png'} alt=""/></td>
+                <td style={{fontSize: 16}}><p style={{fontWeight: '500', opacity: 0.8}}>Free delivery</p></td>
               </tr>
               <tr>
                 <td><img style={ { objectFit:'cover', marginTop:5, width: 25, height: 25 }} src={'/static/checked.png'} alt=""/></td>
@@ -854,7 +988,7 @@ class SearchLunchChild extends Component {
           </div>
 
           <div style={{textAlign: 'center',marginBottom: 20}}>
-            <p style={{fontSize: 16, fontWeight: '600'}}>€4.99 / month after free trial. Cancel anytime. </p>
+            <p style={{fontSize: 16, fontWeight: '600'}}>€9.99 / month after free trial. Cancel anytime. </p>
           </div>
 
         </ModalBody>
@@ -876,35 +1010,13 @@ class SearchLunchChild extends Component {
                 src={img.close} />
           </Button>
 
-          <img
+           <p style={{ fontWeight: '600', marginTop:5, fontSize: 14, opacity: 0.5}}>Delivered by: 12:30p.m - 1:30p.m</p>
+
+          {activeMenu.src ? <img
             style={{cursor:'pointer', marginTop:10, marginBottom: 10, objectFit: "cover", width: "100%", height: 200 }}
             onClick={() => this.inputOpenFileRef.current.click()}
-            src={activeMenu.src ? activeMenu.src : img.food_blackwhite}
-          /> 
-
-          <p style={{ fontWeight:'600', marginTop: 10, fontSize: 18 }}>{activeMenu.catererDetails[0].catererName}</p>
-
-          <Button
-            color="link"
-            onClick={() => this.openMaps(activeMenu.catererDetails[0].location.coordinates[0],activeMenu.catererDetails[0].location.coordinates[1])}
-            style={{
-              padding: 0,
-              fontWeight: "500",
-              color: "#20a8d8"
-            }}
-          >
-            <img
-              style={{
-                objectFit: "cover",
-                width: 20,
-                height: 20,
-                marginRight: 10
-              }}
-              src={img.mapmarker}
-              alt=""
-            />
-            {activeMenu.catererDetails[0].catererAddress}
-          </Button>
+            src={activeMenu.src}
+          /> : null }
 
           <div style={{ marginTop: 10 }}>
             <p>
@@ -913,6 +1025,17 @@ class SearchLunchChild extends Component {
           </div>
 
           {typeof activeMenu.markitem === 'undefined' || activeMenu.markitem.length === 0 ? null : this.renderIcon(activeMenu.markitem)} 
+
+          <div style={{ marginTop: 20 }}>
+            <FormGroup>
+              <Label style={{fontWeight: '600'}}>Select Quantity</Label>
+              <Input value={this.state.selectedQuantity} onChange={(e) => this.handleQuantityChange(e, activeMenu.priceperunit)} style={{color:'black'}} type="select">
+              {this.state.quantity.map(quantity =>
+                <option style={{color:'black'}} key={quantity} value={quantity}>{quantity}</option>
+              )}
+              </Input>
+            </FormGroup>
+          </div>
 
           <Row>
 
@@ -927,18 +1050,56 @@ class SearchLunchChild extends Component {
            
 
             <Col style={{marginTop: 15,}} xs="6">
-              <b style={{fontSize: 19, fontWeight: '600',}}>€{Number(activeMenu.priceperunit).toFixed(2)}</b>
+              <b style={{fontSize: 19, fontWeight: '600',}}>€{Number(this.state.selectedPrice === 0 ? activeMenu.priceperunit : this.state.selectedPrice).toFixed(2)}</b>
             </Col>
 
             <Col style={{textAlign:'end', marginTop: 15,}} xs="6">
-              <Button style={{fontSize: 17, padding: 10}} onClick={() => this.togglePaymentCardModal()} color="primary" disabled>
-                Pre-Order
+              <Button style={{fontSize: 17, padding: 10}} onClick={() => this.togglePaymentCardModal()} color="primary">
+                Place Order
               </Button>
             </Col>  
           </Row>
         </ModalBody>
        
       </Modal>
+    );
+  }
+
+  renderEmptyItems() {
+    return (
+      <Row style={{ paddingLeft: 20, paddingRight: 20, marginTop: 50 }}>
+        <Col style={{ textAlign: "center" }} xs="12">
+          <img
+            style={{
+              objectFit: "cover",
+              width: 70,
+              height: 70,
+              opacity: 0.6
+            }}
+            alt={""}
+            src={
+              "https://cdn0.iconfinder.com/data/icons/huge-black-icons/512/Find.png"
+            }
+          />
+        </Col>
+        <Col style={{ textAlign: "center" }} xs="12">
+          <p
+            style={{ fontSize: 18, letterSpacing: 2, marginTop: 30 }}
+            className="big"
+          >
+            NO CATERER IS AVAILABLE FOR THIS SEARCH.
+          </p>
+        </Col>
+        <Col style={{ textAlign: "center" }} xs="12">
+          <p
+            style={{ fontSize: 15, opacity: 0.8, marginTop: 10, paddingLeft:20, paddingRight: 20 }}
+            className="big"
+          >
+            We recommend you to make special request to our team by contacting us at support@foodiebee.eu. We will make response to you as soon as possible.
+          </p>
+        </Col>
+      
+      </Row>
     );
   }
 
@@ -969,10 +1130,8 @@ class SearchLunchChild extends Component {
     );
   }
 
-  renderItems() {
+  renderItems(menuitems, parentIndex, category) {
     var itemsarray = [];
-
-    var menuitems = this.state.dailyMenu
 
     for (let i = 0; i < menuitems.length; i++) {
 
@@ -980,7 +1139,7 @@ class SearchLunchChild extends Component {
 
       itemsarray.push(
         <Col key={i} xs="12" sm="6" md="6" lg="4" style={{}}>
-          <Card className="card-1" onMouseEnter={() => this.hoverItem(i)} onMouseLeave={() => this.unhoverItem(i)} onClick={() => this.menuItemClicked(i)} style={{ cursor: "pointer" }}>
+          <Card className="card-1" onClick={() => this.menuItemClicked(parentIndex, category, i)} style={{ cursor: "pointer" }}>
             <CardBody
               style={{
                 cursor: "pointer",
@@ -993,63 +1152,67 @@ class SearchLunchChild extends Component {
             >
             <Row>
              
-              <Col style={{padding:0}} xs="12">
-                <div style={{ objectFit:'cover', width: 'auto', height: 150, }}>
-                  <img style={{ objectFit:'cover', width: '100%', height: '100%', }} src={item.src ? item.src : img.food_blackwhite}/>
-                </div>
-              </Col>
-
+              {item.src ?
+                <Col style={{padding:0}} xs="12">
+                  <div style={{ objectFit:'cover', width: 'auto', height: 150, }}>
+                    <img style={{ objectFit:'cover', width: '100%', height: '100%', }} src={item.src}/>
+                  </div>
+                </Col>
+                :
+                null
+              }
+            
               <Col style={{ marginTop: 15, marginBottom: 10,}} xs="12">
-                <div >
+                <div style={{paddingRight: 10}} class="row">
                   <Dotdotdot clamp={1}>
-                    <p className="h5" style={{ cursor: "pointer",  color: "#20a8d8", overflow: "hidden" }}>
+                    <p className="h5" style={{ cursor: "pointer", marginLeft: 15, color: "#20a8d8", overflow: "hidden" }}>
                       {item.title}
                     </p>
                   </Dotdotdot>
                 </div>
-
-                <div>
-                  <Dotdotdot clamp={1}>
-                    <p style={{ marginTop:5, fontWeight: '600', fontSize: 15, cursor: "pointer", overflow: "hidden" }}>
-                      {item.catererDetails[0].catererName}
-                    </p>
-                  </Dotdotdot>
+             
+                <div class="row">
+                  {typeof item.markitem === 'undefined' ? null : this.renderMarkAsIcon(item.markitem)}
                 </div>
-
-                <div>
+                
+                <div style={{ marginTop: 10 }}>
                   <Dotdotdot clamp={1}>
-                    <p style={{ fontWeight: '500', fontSize: 14, cursor: "pointer", overflow: "hidden", opacity: 0.6 }}>
-                      {item.catererDetails[0].catererAddress}
+                    <p style={{ cursor: "pointer", overflow: "hidden" }}>
+                      {item.descrip}
                     </p>
                   </Dotdotdot>
                 </div>
 
                 <div style={{ marginTop: 0, marginBottom: 10 }}>
-                  
+                  <Row>
                     <Label
                       style={{
                         cursor: "pointer",
+                        opacity: 0.5,
+                        marginLeft: 15, 
                         marginTop: 5,
-                        fontWeight: '600'
+                        textDecorationLine: 'line-through',
                       }}
                       className="h5 float-left"
                     >
                       €{Number(item.priceperunit).toFixed(2)}
                     </Label>
-                    <div
+                    <Button style={{cursor: "pointer", marginLeft: 10, opacity: 1.0, padding: 5, fontWeight: '600', fontSize: 12,borderWidth: 0, backgroundColor: "#FF5722", color: "white" }} disabled>PRIME</Button>          
+                    <Label
                       style={{
                         cursor: "pointer",
                         marginLeft: 10, 
+                        marginTop: 5,
                         color: "#FF5722"
                       }}
-                      className="h5 float-right"
+                      className="h5 float-left"
                     >
-                      <Button style={{cursor: "pointer", marginRight: 5, opacity: 1.0, padding: 5, fontWeight: '600', fontSize:11, borderWidth: 0, backgroundColor: "#FF5722", color: "white" }} disabled>PRIME</Button>          
-                      <Label style={{cursor: "pointer", fontSize: 22}}>€{item.discountedprice}</Label>
-                    </div>
-                  
+                      €{item.category === "lite" ? Number(6).toFixed(2) : Number(10).toFixed(2)}
+                    </Label>
+                  </Row>
                 </div>
               </Col>
+
 
               </Row>
               
@@ -1065,33 +1228,127 @@ class SearchLunchChild extends Component {
       </Row>
     );
   }
-  
-  renderMarkers(map, maps, dailyMenu) {
-    let iconMarker = new maps.MarkerImage(
-      img.mapmarker,
-      null, /* size is determined at runtime */
-      null, /* origin is 0,0 */
-      null, /* anchor is bottom center of the scaled image */
-      new window.google.maps.Size(30, 30)
+
+  renderRestaurants() {
+    var itemsarray = [];
+
+    var dailyMenu = this.state.dailyMenu;
+
+    for (let i = 0; i < dailyMenu.length; i++) {
+      itemsarray.push(
+        <div >
+          <Row style={{marginLeft: 10, marginRight: 10}}>
+          
+             <div className="float-left" style={{ marginLeft: 30, width: 80, height: 80,  borderRadius: '50%', overflow: 'hidden'}}>
+              <img style={{ objectFit:'cover', width: 'auto', height: '100%', display: 'inline'}} src={dailyMenu[i].catererDetails.profilesrc}/>
+             </div>
+            
+            <div class="row" style={{ marginTop:10, marginLeft: 40, marginRight: 20 }} >
+              <Label style={{width: '100%', }} className="h4">{dailyMenu[i].catererDetails.catererName}</Label>
+              <Label style={{ opacity: 0.6, width: '100%'}} className="h6">Order Before 11:30 A.M</Label>
+            </div>
+
+          </Row>
+
+          {typeof dailyMenu[i].menuitems.main !== 'undefined' ?
+            <Col style={{ marginTop: 20, paddingLeft: 40, paddingRight: 20, }} xs="12">
+              <Button style={{opacity: 1.0, padding: 10, fontWeight: '600', fontSize: 17, letterSpacing: 2, borderWidth: 0, backgroundColor: "rgba(220,220,220,0.5)", color: "black" }} disabled>LITE</Button>          
+            </Col>
+            :
+            null
+          }
+
+          <Col style={{ marginTop: 20, marginBottom: 20, paddingLeft: 0, paddingRight: 0, }} xs="12">
+            {typeof dailyMenu[i].menuitems.lite !== 'undefined' ? this.renderItems(dailyMenu[i].menuitems.lite, i, "lite") : null}
+          </Col>
+
+          {typeof dailyMenu[i].menuitems.main !== 'undefined' ?
+            <Col style={{ marginTop: 40, paddingLeft: 40, paddingRight: 20, }} xs="12">
+             <Button style={{opacity: 1.0, padding: 10, fontWeight: '600', fontSize: 17, letterSpacing: 2, borderWidth: 0, backgroundColor: "rgba(220,220,220,0.5)", color: "black" }} disabled>MAIN</Button>          
+            </Col>
+            :
+            null
+          }
+
+          <Col style={{ marginTop: 20, marginBottom: 20, paddingLeft: 0, paddingRight: 0, }} xs="12">
+            {typeof dailyMenu[i].menuitems.main !== 'undefined' ? this.renderItems(dailyMenu[i].menuitems.main, i, "main") : null}
+          </Col>
+          
+        </div>
+      );
+    }
+
+    return (
+      <Row>
+        {itemsarray}
+      </Row>
     );
-    dailyMenu.map((place, i) => {
-      var center = {
-        lat: place.catererDetails[0].location.coordinates[0],
-        lng: place.catererDetails[0].location.coordinates[1]
-      }
-      this.marker = new maps.Marker({
-        key: place._id,
-        position: center,
-        map,
-        icon: iconMarker,
-      });
-      this.marker.setMap(map);
-      // Add an event listener on the rectangle.
-      this.marker.addListener("click", () => {
-        this.menuItemClicked(i)
-      });
-    })
   }
+
+
+  renderDateItems() {
+    var itemsarray = [];
+
+    var dayList = this.state.dayList;
+
+    for (let i = 0; i < dayList.length; i++) {
+      itemsarray.push(
+        <Col style={{ paddingRight: 0, paddingLeft: 0 }} key={i} xs="2.4">
+          <Card
+            onMouseEnter={() => this.hoverDate(i)}
+            onMouseLeave={() => this.unhoverDate(i)}
+            style={{
+              cursor: "pointer",
+              marginTop: 0,
+              boxShadow: "none",
+              borderWidth: 0,
+              marginBottom: 0,
+            }}
+            onClick={() => this.selectDateClicked(i)}
+          >
+            <CardBody>
+              <div style={{ textAlign: "center" }}>
+                <span
+                  style={{
+                    color: dayList[i].hovered ? "#FF5722" : "#696969",
+                    fontWeight: "600",
+                  }}
+                >
+                  {dayList[i].day}
+                </span>
+              </div>
+              <div
+                style={{
+                  margin: 'auto',
+                  marginTop: 5,
+                  backgroundColor: dayList[i].hovered ? "#FF5722" : "white",
+                  width: 30,
+                  height: 30,
+                  borderRadius: "50%",
+                  textAlign: "center"
+                }}
+              >
+                <span
+                  style={{
+                    display: "inline-block",
+                    fontWeight: "500",
+                    color: dayList[i].hovered ? "white" : "#696969",
+                    verticalAlign: "middle",
+                    marginTop: 5
+                  }}
+                >
+                  {dayList[i].date}
+                </span>
+              </div>
+            </CardBody>
+          </Card>
+        </Col>
+      );
+    }
+
+    return <Row style={{backgroundColor: 'transparent'}} className="justify-content-center">{itemsarray}</Row>;
+  }
+
 
   renderTopSearchBar() {
     
@@ -1109,33 +1366,16 @@ class SearchLunchChild extends Component {
 
     return (
       <div style={{boxShadow: '0px 0px 3px #DEDEDE'}}>
-        <Container>
+      <Container>
           <Row style={{ paddingTop: 20, paddingBottom: 10}}>
 
-            <Col style={{ marginTop: 25, paddingLeft: 30 }} xs={this.state.isMobile ? "10": "12"} md={this.state.isMobile ? "10" : "6"}>
-              <Form action="" method="post" className="form-horizontal">
-                <FormGroup row>
-                  <Col md="12">
-                    <InputGroup >
-                      <Input onChange={e => this.handleSearchNameChange(e)} value={this.state.searchName} style={{ borderWidth:1.5, color:'black', fontSize: 15, height: 45, borderTopLeftRadius: 15, borderBottomLeftRadius: 15}} type="text" id="input1-group2" name="input1-group2" placeholder="Search Meals" />      
-                      <InputGroupAddon addonType="prepend">
-                        <Button onClick={() => this.searchNameClicked()} style={{borderTopRightRadius: 15, borderBottomRightRadius: 15}}  type="button" color="primary"><i className="fa fa-search"></i></Button>
-                      </InputGroupAddon>
-                    </InputGroup>
-                  </Col>
-                </FormGroup>
-              </Form>
+            <Col xs="12" md={this.state.isMobile ? "12" : "6"}>
+              {this.renderDateItems()}
             </Col>
-
-            {this.state.isMobile ?
-            <Col style={{ marginTop: 25, paddingRight: 30 }} xs="2">
-              <Button style={{padding: 10, borderRadius: 10,}} onClick={() => this.toggleView()} color="primary" outline>
-                {this.state.isMapView ? "List" : "Map"}
-              </Button>
-            </Col> : null }
 
             <Col xs="12" md={this.state.isMobile ? "12" : "6"}>
               <Row className="justify-content-center" style={{paddingTop: 20, paddingBottom: 20}}>
+             
                  <img
                   style={{
                     objectFit: "cover",
@@ -1163,7 +1403,8 @@ class SearchLunchChild extends Component {
               </Row>
             </Col>
           </Row>
-        </Container>
+     
+      </Container>
       <div style={{height: 1, backgroundColor: 'gray', opacity: 0.3}}></div>
       </div>
     )
@@ -1192,118 +1433,59 @@ class SearchLunchChild extends Component {
             style={{ fontSize: 18, letterSpacing: 2, marginTop: 30 }}
             className="big"
           >
-            NO AVAILABLE ITEMS.
+            NO CATERERS AVAILABLE.
           </p>
         </Col>
-        
+        <Col style={{ textAlign: "center" }} xs="12">
+          <p
+            style={{ fontSize: 15, opacity: 0.8, marginTop: 10, paddingLeft:20, paddingRight: 20 }}
+            className="big"
+          >
+            We recommend you to reach out to our team by contacting us at support@foodiebee.eu. We will make response to you as soon as possible.
+          </p>
+        </Col>
+      
       </Row>
     );
-  }
-
-  renderLeftView() {
-    return (
-      <div style={{height: this.state.isMobile && !this.state.isMapView ? '100%' : `100vh`, overflowY: this.state.isMobile && !this.state.isMapView ? "hidden" : "scroll", overflowX: 'hidden', width: this.state.isMobile && !this.state.isMapView ? "100%" : '70%' }} >
-        <Row style={{marginTop: 20, marginBottom: 50, }} >
-
-          <Col style={{ marginTop: 20, textAlign: 'center' }} xs="12">
-            <h3 style={{}} >{this.state.currentDateString}</h3>
-          </Col>
-
-          <Col style={{ marginTop: 10, textAlign: 'center', marginBottom:20 }} xs="12">
-            <h5 style={{paddingLeft:20, paddingRight:20, opacity: 0.8}} >Tommorow lunch menus will be available at 5pm today until 10:30am tommorow.</h5>
-          </Col>
-
-          <Col style={{ marginTop: 20 }} xs="12">
-            {this.state.loading ? this.renderLoadingItems() : null}
-          </Col>
-
-          <Col xs="12">
-            {this.renderItems()}
-          </Col>
-
-          <Col xs="12">
-            {this.state.empty ? this.renderEmptyItems() : null}
-          </Col>
-
-        </Row>
-      </div>
-    )
-  }
-
-  renderMapView() {
-    return (
-      <div style={{ position: 'absolute', right: 0, height: this.state.isMobile && this.state.isMapView ? '80%': '100%', width: this.state.isMobile && this.state.isMapView ? '100%' : '30%' }}>
-        
-        {this.state.isMobile && this.state.isMapView ?
-        <div style={{ marginTop: 20, textAlign: 'center' }}>
-          <h3 style={{}} >{this.state.currentDateString}</h3>
-        </div> : null }
-
-        {this.state.isMobile && this.state.isMapView ?
-        <div style={{ marginTop: 10, textAlign: 'center', marginBottom:20 }}>
-          <h5 style={{paddingLeft:20, paddingRight:20, opacity: 0.8}} >Tommorow lunch menus will be available at 5pm today until 10:30am tommorow.</h5>
-        </div> : null }
-
-        <GoogleMapReact
-          bootstrapURLKeys={{ key: [GOOGLE_API_KEY] }}
-          center={this.state.center}
-          zoom={13}
-          yesIWantToUseGoogleMapApiInternals={true}
-          onGoogleApiLoaded={({ map, maps }) => this.renderMarkers(map, maps, this.state.dailyMenu)}
-        >
-          {this.state.center ? 
-          <CenterMarker
-            lat={this.state.center.lat}
-            lng={this.state.center.lng}
-          />
-          : null}
-
-          {this.state.activeIndex >= 0 && this.state.dailyMenu.length > 0 ?
-            <RedMarker
-              lat={this.state.dailyMenu[this.state.activeIndex].catererDetails[0].location.coordinates[0]}
-              lng={this.state.dailyMenu[this.state.activeIndex].catererDetails[0].location.coordinates[1]}
-            />
-            :
-            null}
-
-        </GoogleMapReact>
-      </div>
-    )
   }
 
   render() {
 
     return (
     <div ref={this.refObj} style={{backgroundColor: 'white'}}>
-    
-      <NavBar stickTop={true} signIn={e=>this.signIn(e)}/>
+      <NavBar signIn={e=>this.signIn(e)}/>
 
       {this.renderTopSearchBar()}
 
-      <div className="container-fluid">
+      <div className="app align-items-center">
+       
+        <Container>
+          <Row style={{marginTop: 20, marginBottom: 50, }} >
 
-        <div className="app align-items-start">
+            <Col style={{ marginTop: 20 }} xs="12">
+              {this.state.loading ? this.renderLoadingItems() : null}
+            </Col>
 
-          {!this.state.isMobile ? this.renderLeftView(): null}
+            <Col xs="12">
+              {this.renderRestaurants()}
+            </Col>
 
-          {!this.state.isMobile ? this.renderMapView(): null}
-        
-          {this.state.isMobile && !this.state.isMapView ? this.renderLeftView(): null}
+            <Col xs="12">
+              {this.state.empty ? this.renderEmptyItems() : null}
+            </Col>
+ 
+          </Row>
+        </Container>
 
-          {this.state.isMobile && this.state.isMapView ? this.renderMapView(): null}
+        {this.state.menuModalOpen ? this.renderMenuModal() : null}
 
-        </div>
+        {this.state.primeModalOpen ? this.renderPrimeModal() : null}
+
+        {this.renderPaymentCardModal()}
+
+        {this.renderLoadingModal()}
 
       </div>
-
-      {this.state.menuModalOpen ? this.renderMenuModal() : null}
-
-      {this.state.primeModalOpen ? this.renderPrimeModal() : null}
-
-      {this.renderPaymentCardModal()}
-
-      {this.renderLoadingModal()}
-
       <Footer />
       </div>
     );
