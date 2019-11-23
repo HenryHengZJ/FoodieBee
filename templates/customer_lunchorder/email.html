@@ -121,37 +121,7 @@ td .es-button-border-2:hover {
                 <table cellspacing="0" cellpadding="0" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;"> 
                   <tr style="border-collapse:collapse;"> 
                    <td width="560" align="left" style="padding:0;Margin:0;"> 
-                    <table style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:separate;border-spacing:0px;background-color:#FFFFFF;border-width:1px;border-style:solid;border-color:#EFEFEF;" width="100%" cellspacing="0" cellpadding="0" bgcolor="#ffffff"> 
-                      <tr style="border-collapse:collapse;"> 
-                       <td align="left" style="Margin:0;padding-bottom:10px;padding-top:20px;padding-left:20px;padding-right:20px;"> <h4 style="Margin:0;line-height:120%;mso-line-height-rule:exactly;font-family:'trebuchet ms', helvetica, sans-serif;">ORDER SUMMARY:</h4></td> 
-                      </tr> 
-                      <tr style="border-collapse:collapse;"> 
-                          <td align="left" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px;"> 
-                           <table style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:100%;" class="cke_show_border" cellspacing="1" cellpadding="1" border="0" align="left"> 
-                            <tr id="orderRow" style="border-collapse:collapse;"> 
-                              <td style="padding:0;Margin:0;font-size:14px;line-height:21px;">Order #:</td> 
-                              <td id="orderID" style="padding:0;Margin:0;font-size:14px;line-height:21px;">{{str_orderID}}</td> 
-                            </tr>  
-                            <tr style="border-collapse:collapse;"> 
-                              <td style="padding:0;Margin:0;font-size:14px;line-height:21px;">Order Date:</td> 
-                              <td id="orderDate" style="padding:0;Margin:0;font-size:14px;line-height:21px;">{{str_orderDate}}</td> 
-                             </tr> 
-                             <tr style="border-collapse:collapse;"> 
-                              <td style="padding:0;Margin:0;font-size:14px;line-height:21px;">Order Type:</td> 
-                              <td id="orderType" style="padding:0;Margin:0;font-size:14px;line-height:21px;">{{str_orderType}}</td> 
-                             </tr> 
-                             <tr style="border-collapse:collapse;"> 
-                              <td style="padding:0;Margin:0;font-size:14px;line-height:21px;">Payment Type:</td> 
-                              <td style="padding:0;Margin:0;font-size:14px;line-height:21px;">{{str_paymentType}}</td> 
-                             </tr> 
-                             <tr style="border-collapse:collapse;"> 
-                              <td style="padding:0;Margin:0;font-size:14px;line-height:21px;">Payment Status:</td> 
-                              <td style="padding:0;Margin:0;font-size:14px;line-height:21px;">{{str_paymentStatus}}</td> 
-                             </tr> 
-                           </table>
-                 <p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-size:14px;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;"><br></p> </td> 
-                         </tr>
-                    </table> </td> 
+                   </td> 
                   </tr> 
                 </table> </td> 
               </tr> 
@@ -169,28 +139,35 @@ td .es-button-border-2:hover {
                      <td width="560" align="left" style="padding:0;Margin:0;"> 
                       <table style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:separate;border-spacing:0px;background-color:#FFFFFF;border-width:1px;border-style:solid;border-color:#EFEFEF;" width="100%" cellspacing="0" cellpadding="0" bgcolor="#ffffff"> 
                         <tr style="border-collapse:collapse;"> 
-                         <td align="left" style="Margin:0;padding-bottom:10px;padding-top:20px;padding-left:20px;padding-right:20px;"> <h4 style="Margin:0;line-height:120%;mso-line-height-rule:exactly;font-family:'trebuchet ms', helvetica, sans-serif;">{{str_orderTypeCapitalLetter}} DETAILS:</h4></td> 
+                         <td align="left" style="Margin:0;padding-bottom:10px;padding-top:20px;padding-left:20px;padding-right:20px;"> <h4 style="Margin:0;line-height:120%;mso-line-height-rule:exactly;font-family:'trebuchet ms', helvetica, sans-serif;">ORDER DETAILS:</h4></td> 
                         </tr> 
                         <tr style="border-collapse:collapse;"> 
                             <td align="left" style="padding:0;Margin:0;padding-bottom:20px;padding-left:20px;padding-right:20px;"> 
                              <table style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:100%;" class="cke_show_border" cellspacing="1" cellpadding="1" border="0" align="left"> 
                                <tr style="border-collapse:collapse;"> 
+                                <td style="padding:0;Margin:0;font-size:14px;line-height:21px;">Order ID:</td> 
+                                <td id="deliveryDate" style="padding:0;Margin:0;font-size:14px;line-height:21px;">{{str_orderID}}</td> 
+                               </tr> 
+                               <tr style="border-collapse:collapse;"> 
+                                <td style="padding:0;Margin:0;font-size:14px;line-height:21px;">Order Number:</td> 
+                                <td id="deliveryDate" style="padding:0;Margin:0;font-size:14px;line-height:21px;">#{{str_orderNumber}}</td> 
+                               </tr> 
+                               <tr style="border-collapse:collapse;"> 
                                 <td style="padding:0;Margin:0;font-size:14px;line-height:21px;">Date:</td> 
-                                <td id="deliveryDate" style="padding:0;Margin:0;font-size:14px;line-height:21px;">{{str_deliveryDate}}</td> 
-                               </tr> 
-                               <tr style="border-collapse:collapse;"> 
-                                <td style="padding:0;Margin:0;font-size:14px;line-height:21px;">Time:</td> 
-                                <td id="deliveryTime" style="padding:0;Margin:0;font-size:14px;line-height:21px;">{{str_deliveryTime}}</td> 
-                               </tr> 
-                               {{{str_deliveryAddress}}}
-                               <tr style="border-collapse:collapse;"> 
-                                <td style="padding:0;Margin:0;font-size:14px;line-height:21px;">Customer Name:</td> 
-                                <td id="customerName" style="padding:0;Margin:0;font-size:14px;line-height:21px;">{{str_customerName}}</td> 
-                               </tr> 
-                               <tr style="border-collapse:collapse;"> 
-                                <td style="padding:0;Margin:0;font-size:14px;line-height:21px;">Customer Contact:</td> 
-                                <td style="padding:0;Margin:0;font-size:14px;line-height:21px;">{{str_customerPhone}}</td> 
+                                <td id="deliveryDate" style="padding:0;Margin:0;font-size:14px;line-height:21px;">{{str_updatedAt}}</td> 
                                </tr>
+                               <tr style="border-collapse:collapse;"> 
+                                <td style="padding:0;Margin:0;font-size:14px;line-height:21px;">Restaurant:</td> 
+                                <td id="deliveryDate" style="padding:0;Margin:0;font-size:14px;line-height:21px;">{{catererName}}</td> 
+                               </tr> 
+                               <tr style="border-collapse:collapse;"> 
+                                <td style="padding:0;Margin:0;font-size:14px;line-height:21px;">Restaurant Address:</td> 
+                                <td id="deliveryTime" style="padding:0;Margin:0;font-size:14px;line-height:21px;"><a href={{mapLink}} target="_blank">{{catererFullAddress}}</a></td> 
+                               </tr>
+                               <tr style="border-collapse:collapse;"> 
+                                <td style="padding:0;Margin:0;font-size:14px;line-height:21px;">PickUp Time:</td> 
+                                <td id="deliveryTime" style="padding:0;Margin:0;font-size:14px;line-height:21px;">{{str_pickupTime}}</td> 
+                               </tr> 
                              </table><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-size:14px;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;"><br></p> </td> 
                            </tr> 
                       </table> </td> 
@@ -261,33 +238,7 @@ td .es-button-border-2:hover {
 
             {{{newrow}}}
 
-             <tr id="price" style="border-collapse:collapse;"> 
-              <td align="left" style="Margin:0;padding-top:5px;padding-left:20px;padding-bottom:30px;padding-right:40px;"> 
-               <table width="100%" cellspacing="0" cellpadding="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;"> 
-                 <tr style="border-collapse:collapse;"> 
-                  <td width="540" valign="top" align="center" style="padding:0;Margin:0;"> 
-                   <table width="100%" cellspacing="0" cellpadding="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;"> 
-                     <tr style="border-collapse:collapse;"> 
-                      <td align="right" style="padding:0;Margin:0;"> 
-                       <table style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;width:500px;" class="cke_show_border" cellspacing="1" cellpadding="1" border="0" align="right"> 
-                         <tr style="border-collapse:collapse;"> 
-                          <td style="padding:0;Margin:0;text-align:right;font-size:16px;line-height:24px;">Subtotal:</td> 
-                          <td id="Subtotal" style="padding:0;Margin:0;text-align:right;font-size:16px;line-height:24px;">{{str_subtotal}}</td> 
-                         </tr> 
-                         <tr style="border-collapse:collapse;"> 
-                          <td style="padding:0;Margin:0;text-align:right;font-size:16px;line-height:24px;">Delivery Fee:</td> 
-                          <td id="Deliveryfee" style="padding:0;Margin:0;text-align:right;font-size:16px;line-height:24px;color:#000000;">{{str_deliveryfee}}</td> 
-                         </tr> 
-                         <tr style="border-collapse:collapse;"> 
-                          <td style="padding:0;Margin:0;text-align:right;font-size:16px;line-height:24px;"><strong>Order Total:</strong></td> 
-                          <td id="Ordertotal" style="padding:0;Margin:0;text-align:right;font-size:16px;line-height:24px;color:#D48344;"><strong>{{str_ordertotal}}</strong></td> 
-                         </tr> 
-                       </table><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-size:14px;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;color:#333333;"><br></p> </td> 
-                     </tr> 
-                   </table> </td> 
-                 </tr> 
-               </table> </td> 
-             </tr> 
+             
            </table> </td> 
          </tr> 
        </table> 

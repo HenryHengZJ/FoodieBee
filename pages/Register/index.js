@@ -60,6 +60,7 @@ class Register extends Component {
       isPasswordFormatWrong: false,
       customerCompanyDetails: null,
       customerCompanyID: "",
+      errormsg: "",
     };
   }
 
@@ -250,9 +251,17 @@ class Register extends Component {
                 })
                 .catch((error) => {
                   if (error) {
+                    var errormsg = ""
+                    if (error.response.data.message === 'email existed') {
+                      errormsg = "Email existed. Please try with another email address."
+                    }
+                    else {
+                      errormsg = "Error creating account. Please try again"
+                    }
                     this.setState({
                       error: true,
-                      isCreating: false
+                      isCreating: false,
+                      errormsg,
                     })
                   } 
                 }); 
@@ -278,9 +287,17 @@ class Register extends Component {
           })
           .catch((error) => {
             if (error) {
+              var errormsg = ""
+              if (error.response.data.message === 'email existed') {
+                errormsg = "Email existed. Please try with another email address."
+              }
+              else {
+                errormsg = "Error creating account. Please try again"
+              }
               this.setState({
                 error: true,
-                isCreating: false
+                isCreating: false,
+                errormsg,
               })
             } 
           }); 
@@ -337,7 +354,7 @@ class Register extends Component {
       <Layout title={'Register'}>
         <NextSeo
           config={{
-            title: 'Register | FoodieBee - Corporate Catering Services and Marketplace | Local Caterers',
+            title: 'Register | FoodieBee',
           }}
         />
         <div style={{backgroundColor: 'white'}}>
@@ -450,7 +467,7 @@ class Register extends Component {
                         <FormFeedback>Please confirm password again</FormFeedback>
                       </InputGroup>
                       {!this.state.isPasswordMatch ? <Label style={{color: 'red', fontSize: 13, marginBottom: 20}}>Password do not match</Label> : null}
-                      {this.state.error ? <Label style={{color: 'red', fontSize: 13, marginBottom: 20}}>Error creating account. Please try again</Label> : null}
+                      {this.state.error ? <Label style={{color: 'red', fontSize: 13, marginBottom: 20}}>{this.state.errormsg}</Label> : null}
                       {this.state.errorRedirect ? <Label style={{color: 'green', fontSize: 15, marginBottom: 20}}>Account created successfully. Click <a style={{fontWeight: '600'}} href="/">here</a> to go to homepage.</Label> : null}
                       <Button disabled={this.state.isCreating ? true : false} style={{paddingTop:10, paddingBottom: 10}} color="success" onClick={() => this.onRegisterClick()} block> {this.state.isCreating ? this.state.redirecting ? "Redirecting..." : "Creating..." : "Create Account"}</Button>
                     </Form>

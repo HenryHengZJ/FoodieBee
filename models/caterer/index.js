@@ -60,7 +60,8 @@ var catererSchema = mongoose.Schema({
         default: Date.now
     },
     resetPasswordToken: String,
-    resetPasswordExpires: Date
+    resetPasswordExpires: Date,
+    catererPaymentAccountID: String
 }, {
     timestamps: true
 });
@@ -79,7 +80,7 @@ catererSchema.methods.generateJWT = function() {
   return jwt.sign({
     catererEmail: this.catererEmail,
     id: this._id,
-  },  process.env.jwtSecretKey, {expiresIn: '24h'} );
+  }, process.env.jwtSecretKey, {expiresIn: '24h'} );
 }
 
 //Connect to specific database

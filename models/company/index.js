@@ -13,10 +13,11 @@ var dailyCatererSchema = mongoose.Schema({
 var companySchema = mongoose.Schema({
 	companyName: String,
 	companyAddress: String,
+	companyFullAddress: String,
 	companyCity: String,
-	companyDistrict: String,
+	companyCounty: String,
+	companyCountry: String,
 	location: { type: {type:String}, coordinates: [Number]},
-	dailyCaterer: [dailyCatererSchema],
 }, {
     timestamps: true
 });

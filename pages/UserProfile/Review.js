@@ -198,8 +198,7 @@ class Review extends Component {
     for (let i = 0; i < tableitems.length; i++) {
       itemarray.push(
         <tr>
-          <td style={{width: '10%'}}>{tableitems[i].catererName}</td>
-          <td style={{width: '15%'}}>{tableitems[i].customerCity}</td>
+          <td style={{width: '10%'}}>{tableitems[i].catererDetails[0].catererName}</td>
           <td style={{width: '15%'}}>
             <StarRatings
               starRatedColor='orange'
@@ -255,11 +254,10 @@ class Review extends Component {
         <Table striped responsive>
           <thead>
             <tr>
-              <th>Caterer</th>
-              <th>Location</th>
+              <th>Restaurant</th>
               <th>Rating</th>
               <th>Comment</th>
-              <th>Time</th>
+              <th>Date</th>
             </tr>
           </thead>
           {this.state.empty ? null : this.renderTableItems()}

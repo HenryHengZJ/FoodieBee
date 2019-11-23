@@ -234,7 +234,7 @@ class TermsCondition extends Component {
       <Layout title={'Terms & Conditions'}>
       <NextSeo
         config={{
-          title: 'Terms & Conditions | FoodieBee - Corporate Catering Services and Marketplace | Local Caterers',
+          title: 'Terms & Conditions | FoodieBee',
         }}
       />
       <div style={{backgroundColor: 'white'}}>

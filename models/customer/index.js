@@ -6,18 +6,6 @@ require('dotenv').config();
 const Schema = mongoose.Schema
 const ObjectId = Schema.Types.ObjectId
 
-var deliveryAddressSchema = mongoose.Schema({
-	default: {
-        type: Boolean,
-        default: false
-    },
-    address1: String,
-    address2: String,
-    address3: String,
-    city: String,
-	county: String,
-});
-
 // define the schema for our customerSchema model
 var customerSchema = mongoose.Schema({
     customerFirstName: String,
@@ -25,7 +13,6 @@ var customerSchema = mongoose.Schema({
     customerEmail: String,
 	customerPassword: String,
     customerPhoneNumber: String,
-    customerDeliveryAddress: [deliveryAddressSchema],
     customerCity: String,
     customerCounty: String,
     customerCountry: String,
@@ -35,17 +22,14 @@ var customerSchema = mongoose.Schema({
         type: Number,
         default: 0
     },
-    status: {
-        type: String,
-        default: "new"
-    },
-    statusUpdated: {
-        type : Date, 
-        default: Date.now
+    customerIsPrime: {
+        type: Boolean,
+        default: false
     },
     resetPasswordToken: String,
     resetPasswordExpires: Date,
-    customerPaymentAccoundID: String,
+    customerPaymentAccountID: String,
+    subscriptionID: String,
 }, {
     timestamps: true
 });

@@ -23,7 +23,7 @@ class LandingPage extends Component {
       <Layout title={'Contact Us'}>
         <NextSeo
           config={{
-            title: 'Contact Us | FoodieBee - Corporate Catering Services and Marketplace | Local Caterers',
+            title: 'Contact Us | FoodieBee',
           }}
         />
         <div id="app">

@@ -32,7 +32,8 @@ class Login extends Component {
 
     this.handleEmailChange = this.handleEmailChange.bind(this);
     this.handlePasswordChange = this.handlePasswordChange.bind(this);
- 
+    this.enterPressed = this.enterPressed.bind(this)
+
     this.state = {
       invalidUser: false,
       useremail: "",
@@ -46,6 +47,13 @@ class Login extends Component {
     Router.push({
       pathname: '/login'
     })
+  }
+
+  enterPressed(event) {
+    var code = event.keyCode || event.which;
+    if(code === 13) { //13 is the enter keycode
+       this.login(event)
+    } 
   }
 
   handleEmailChange(e) {
@@ -117,7 +125,7 @@ class Login extends Component {
       <Layout title={'Login'}>
         <NextSeo
           config={{
-            title: 'Login | FoodieBee - Corporate Catering Services and Marketplace | Local Caterers',
+            title: 'Login | FoodieBee',
           }}
         />
         <div style={{backgroundColor: 'white'}}>
@@ -135,7 +143,7 @@ class Login extends Component {
                         <InputGroupAddon addonType="prepend">
                           <InputGroupText>@</InputGroupText>
                         </InputGroupAddon>
-                        <Input value={this.state.useremail} onChange={(e) => this.handleEmailChange(e)} type="text" placeholder="Email" autoComplete="email" />
+                        <Input value={this.state.useremail} onChange={(e) => this.handleEmailChange(e)} type="text" placeholder="Email" autoComplete="email" onKeyPress={this.enterPressed.bind(this)} />
                       </InputGroup>
                       <InputGroup className="mb-4">
                         <InputGroupAddon addonType="prepend">
@@ -143,7 +151,7 @@ class Login extends Component {
                           <a style={{color: 'gray', marginLeft: 2.5, marginRight: 2.5}} className="fa fa-lock"></a>
                           </InputGroupText>
                         </InputGroupAddon>
-                        <Input value={this.state.userpassword} onChange={(e) => this.handlePasswordChange(e)} type="password" placeholder="Password" autoComplete="current-password" />
+                        <Input value={this.state.userpassword} onChange={(e) => this.handlePasswordChange(e)} type="password" placeholder="Password" autoComplete="current-password" onKeyPress={this.enterPressed.bind(this)}/>
                       </InputGroup>
                       {this.state.invalidUser ? <Label style={{color: 'red', marginBottom: 20, fontSize: 13}}>Invalid email / password</Label> : null }
                       <Row>
@@ -167,9 +175,9 @@ class Login extends Component {
                         
                         <Button onClick={(e) => this.signupmember(e)} color="primary" className="mt-3" active tabIndex={-1}>Register As Member</Button>
                         
-                        <h2 style={{marginTop: 45}}>I'm a Caterer</h2>
+                        <h2 style={{marginTop: 45}}>Restaurant</h2>
                         
-                        <Button onClick={(e) => this.caterersignup(e)} style={{backgroundColor: 'white', fontWeight: '500'}} color="link" className="mt-3" >Login / Register As Caterer</Button>
+                        <Button onClick={(e) => this.caterersignup(e)} style={{backgroundColor: 'white', fontWeight: '500'}} color="link" className="mt-3" >Login / Register As Restaurant</Button>
                         
                       </div>
                     </CardBody>

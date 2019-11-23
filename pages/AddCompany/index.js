@@ -10,9 +10,13 @@ import axios from "axios";
 import apis from "../../apis";
 import {server} from "../../config"
 import NextSeo from 'next-seo';
-import {listCounties} from "../../utils"
 import Cookies from 'js-cookie';
 import AutoCompleteAddress from '../../components/AutoCompleteAddress'
+import Geocode from "react-geocode";
+import GoogleMapReact from 'google-map-react';
+import img from "../../assets/img"
+
+const GOOGLE_API_KEY = "AIzaSyCFHrZBb72wmg5LTiMjUgI_CLhsoMLmlBk";
 
 class AddCompany extends Component {
 
@@ -29,37 +33,38 @@ class AddCompany extends Component {
     })
   }
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      returnurl: "",
+      companyName: "",
+      isCompanyNameEmpty: false,
+      center: {
+        lat: 53.3498091,
+        lng: -6.2621753
+      },
+      companyFullAddress: "",
+      companyAddress: "",
+      companyCity: "",
+      companyCounty: "",
+      companyCountry: "",
+      isCompanyAddressEmpty: false,
+      isAddressButtonActive: false,
+      userName: "",
+    };
+
+    this.handleCompanyName = this.handleCompanyName.bind(this);
+    this.marker = null;
+   
+  }
+
   componentDidMount() {
     if (typeof Cookies.get('userName') !== 'undefined') {
       this.setState({
         userName: Cookies.get('userName'),
       })
     }
-  }
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      returnurl: "",
-      companyName: "",
-      iscompanyNameEmpty: false,
-      address: "",
-      longitude: null,
-      latitude: null,
-      county: "",
-      district: "",
-      isAddressButtonActive: false,
-      userName: "",
-    };
-
-    this.handleCounty = this.handleCounty.bind(this);
-    this.handleDistrict = this.handleDistrict.bind(this);
-    this.handleCompanyName = this.handleCompanyName.bind(this);
- 
-    this.CountyData = listCounties();
-
-    this.DistrictData = ["Dublin 1","Dublin 2","Dublin 3","Dublin 4","Dublin 6","Dublin 6W","Dublin 7","Dublin 8"]
-
+    Geocode.setApiKey(GOOGLE_API_KEY);
   }
 
   signIn(e) {
@@ -74,91 +79,46 @@ class AddCompany extends Component {
       {
         companyName: e.target.value,
       },
-      () => {
-        this.checkAddressInput();
-      }
     );
   }
 
-  handleCounty(e) {
-    this.setState(
-      { 
-        county: e.target.value,
-        district: e.target.value !== "Dublin" ? "" : this.state.district
-      },
-      () => {
-        this.checkAddressInput();
-      })
-  }
-
-  handleDistrict(e) {
-    this.setState(
-      { 
-        district: e.target.value 
-      },
-      () => {
-        this.checkAddressInput();
-      })
-  }
-
-  checkAddressInput = () => {
+  checkInput = () => {
     const {
       companyName,
-      address,
-      county,
-      district,
-      longitude,
-      latitude,
+      companyFullAddress,
     } = this.state;
 
-    var validCountyDistrict = true
-
-    if (county !== "") {
-      if (county === "Dublin" && district === "") {
-        validCountyDistrict = false
-      }
+    if (companyName === "") {
+      this.setState({ isCompanyNameEmpty: true });
+    }
+    else  if (companyFullAddress === "") {
+      this.setState({ isCompanyAddressEmpty: true });
     }
     else {
-      validCountyDistrict = false
-    }
-
-    if (companyName !== "" & address !== "" && longitude && latitude && validCountyDistrict) {
-      this.setState({ isAddressButtonActive: true });
-    }
-    else {
-      this.setState({ isAddressButtonActive: false });
+      this.onUpdate()
     }
   }
 
-  onUpdateClick = () => {
+  onUpdate = () => {
     
-    const {
-      companyName,
-      address,
-      longitude,
-      latitude,
-      county,
-      district,
-    } = this.state;
+    const {center, companyName, companyAddress, companyFullAddress, companyCity, companyCountry, companyCounty} = this.state
 
-    //New User
-
-    var locationdata = {
+    var data = {
+      location: {
         type: "Point",
-        coordinates: [latitude, longitude]
-    }
-
-    var customerCompany = {
+        coordinates: [center.lat, center.lng]
+      },
       companyName: companyName,
-      companyAddress: address,
-      companyCity: county,
-      companyDistrict: district,  
-      location:  locationdata 
+      companyAddress: companyAddress,
+      companyFullAddress: companyFullAddress,
+      companyCity: companyCity,
+      companyCountry: companyCountry,
+      companyCounty: companyCounty,
     }
 
     if (this.state.userName === "") {
       //New User
-      sessionStorage.setItem("customerCompany", JSON.stringify(customerCompany));
+      sessionStorage.setItem("customerCompany", JSON.stringify(data));
       Router.push({
         pathname: '/register'
       })
@@ -171,7 +131,7 @@ class AddCompany extends Component {
   
       var url = apis.POSTcompany;
   
-      axios.post(url, customerCompany, {withCredentials: true}, {headers: headers})
+      axios.post(url, data, {withCredentials: true}, {headers: headers})
         .then((response) => {
           if (response.status === 200) {
             this.updateCustomerCompany(response.data._id)
@@ -213,39 +173,103 @@ class AddCompany extends Component {
   }
 
   showPlaceDetails(address) {
+    var lat = Number(address.geometry.location.lat())
+    var lng = Number(address.geometry.location.lng())
+    
+    Geocode.fromLatLng(lat, lng).then(
+      response => {
 
-    if (address != "" && typeof address !== 'undefined' && address !== null) {
-       
-      var city = address.address_components[1].long_name
-      var formatted_address = address.formatted_address
-      var longitude = address.geometry.location.lng()
-      var latitude = address.geometry.location.lat()
+        //Get rid of postal code
+        for(var i = 0 ; i < response.results[0].address_components.length ; i++){
+          if (response.results[0].address_components[i].types[0] === "postal_code") {
+            response.results[0].address_components.splice(i, 1)
+          }
+        }
 
-      this.setState({
-        address: formatted_address,
-        longitude: longitude,
-        latitude: latitude
-      }, () => {
-        this.checkAddressInput()
-      })
-    }
+        var address_components = response.results[0].address_components
  
+        var companyAddress = ""
+        for(var i = address_components.length - 4 ; i >= 0; i--){
+          companyAddress = address_components[i].long_name + ( i === address_components.length - 4 ? "" : ", " ) + companyAddress 
+        }
+        
+        this.setState({
+          center: {
+            lat: lat,
+            lng: lng,
+          },
+          companyFullAddress: response.results[0].formatted_address,
+          companyAddress: companyAddress,
+          companyCity: address_components[address_components.length - 3].long_name,
+          companyCounty: address_components[address_components.length - 2].long_name,
+          companyCountry: address_components[address_components.length - 1].long_name,
+        })
+      },
+      error => {
+        console.log(error);
+      }
+    );
   }
 
+  onInputChanged(value) {
+    this.setState({
+      companyFullAddress: value
+    })
+  }
+
+  onMapChange = ({center}) => {
+   
+    var lat = center.lat;
+    var lng = center.lng;
+
+    Geocode.fromLatLng(lat, lng).then(
+      response => {
+
+        //Get rid of postal code
+        for(var i = 0 ; i < response.results[0].address_components.length ; i++){
+          if (response.results[0].address_components[i].types[0] === "postal_code") {
+            response.results[0].address_components.splice(i, 1)
+          }
+        }
+
+        var address_components = response.results[0].address_components
+
+        var companyAddress = ""
+        for(var i = address_components.length - 4 ; i >= 0; i--){
+          companyAddress = address_components[i].long_name + ( i === address_components.length - 4 ? "" : ", " ) + companyAddress 
+        }
+        
+        this.setState({
+          center: {
+            lat: lat,
+            lng: lng,
+          },
+          companyFullAddress: response.results[0].formatted_address,
+          companyAddress: companyAddress,
+          companyCity: address_components[address_components.length - 3].long_name,
+          companyCounty: address_components[address_components.length - 2].long_name,
+          companyCountry: address_components[address_components.length - 1].long_name,
+        })
+      },
+      error => {
+        console.log(error);
+      }
+    );
+  };
 
   render() {
     return (
       <Layout title={'Add Company'}>
         <NextSeo
           config={{
-            title: 'Add Company | FoodieBee - Corporate Catering Services and Marketplace | Local Caterers',
+            title: 'Add Company | FoodieBee',
           }}
         />
         <div style={{backgroundColor: 'white'}}>
           <NavBar signIn={e=>this.signIn(e)}/>
           <div className="app justify-content-center align-items-center">
           <Container>
-            <Row style={{flex: 1, display: 'flex'}} className="justify-content-center">
+            <Row style={{flex: 1, display: 'flex', marginTop: 20}} className="justify-content-center">
               <Col md="9" lg="7" xl="6">
                 <Card  style={{boxShadow: '1px 1px 3px #9E9E9E'}} className="p-4">
                   <CardBody className="p-4">
@@ -260,79 +284,53 @@ class AddCompany extends Component {
                           type="text"
                           placeholder="Company Name"
                           autoComplete="companyname"
-                          invalid={this.state.iscompanyNameEmpty ? true : false}
+                          invalid={this.state.isCompanyNameEmpty ? true : false}
                         />
                         <FormFeedback className="help-block">
                           Please enter company name
                         </FormFeedback>
                       </FormGroup>
-                      <FormGroup style={{ marginTop: 10 }}>
+                      <FormGroup style={{ marginTop: 20 }}>
                         <h6>Company Address</h6>
-                        <AutoCompleteAddress 
-                          borderTopRightRadius={5}
-                          borderBottomRightRadius = {5}
-                          borderTopLeftRadius={5}
-                          borderBottomLeftRadius={5}
-                          borderColor = 'rgba(211,211,211,0.5)'
-                          paddingLeft = {15}
-                          paddingRight = {15}
-                          paddingTop = {7}
-                          paddingBottom = {7}
-                          fontSize = {14}
-                          color = 'black'
-                          onPlaceChanged={this.showPlaceDetails.bind(this)} />     
+                        <span style={{fontWeight: '600', fontSize: 13, opacity: 0.7}}>Drag the map to pin your restaurant's location.</span>
+                        <Col style={{marginTop:10, paddingLeft: 0, paddingRight: 0}} xs="12">
+                          <InputGroup >
+                            <AutoCompleteAddress 
+                              borderTopRightRadius={0}
+                              borderBottomRightRadius = {0}
+                              borderTopLeftRadius={5}
+                              borderBottomLeftRadius={5}
+                              borderColor = 'rgba(211,211,211,0.3)'
+                              paddingLeft = {20}
+                              paddingRight = {20}
+                              paddingTop = {10}
+                              paddingBottom = {10}
+                              fontSize = {14}
+                              color = 'black'
+                              placeholder = "Enter business address"
+                              onInputChanged={this.onInputChanged.bind(this)}
+                              value={this.state.companyFullAddress}
+                              onPlaceChanged={this.showPlaceDetails.bind(this)} />    
+                          </InputGroup>
+                          {this.state.isCompanyAddressEmpty ? 
+                          <Label style={{fontSize: 11, color: 'red', opacity: 0.8}}>
+                            Please enter company name
+                          </Label> : null }
+                        </Col>
                       </FormGroup>
-                      <FormGroup style={{ marginTop: 10 }}>
-                        <h6>County</h6>
-                        <Input
-                          style={{ color: this.state.county !== "" ? "black" : null }}
-                          value={this.state.county}
-                          onChange={e => this.handleCounty(e)}
-                          type="select"
-                          placeholder="County"
-                          autoComplete="county"
+                      <div style={{ marginTop:25, height: '60vh', width: '100%' }}>
+                        <GoogleMapReact
+                          bootstrapURLKeys={{ key: [GOOGLE_API_KEY] }}
+                          center={this.state.center}
+                          zoom={14}
+                          onChange={this.onMapChange}
                         >
-                          <option value="" disabled>
-                            Select County
-                          </option>
-                          {this.CountyData.map(county => (
-                            <option
-                              style={{ color: "black" }}
-                              key={county}
-                              value={county}
-                            >
-                              {county}
-                            </option>
-                          ))}
-                        </Input>
-                      </FormGroup>
-                      {this.state.county === "Dublin" ?
-                      <FormGroup style={{ marginTop: 10 }}>
-                        <h6>District</h6>
-                        <Input
-                          style={{ color: this.state.district !== "" ? "black" : null }}
-                          value={this.state.district}
-                          onChange={e => this.handleDistrict(e)}
-                          type="select"
-                          placeholder="District"
-                          autoComplete="District"
-                        >
-                          <option value="" disabled>
-                            Select District
-                          </option>
-                          {this.DistrictData.map(district => (
-                            <option
-                              style={{ color: "black" }}
-                              key={district}
-                              value={district}
-                            >
-                              {district}
-                            </option>
-                          ))}
-                        </Input>
-                      </FormGroup>
-                      :
-                      null}
+                        </GoogleMapReact>
+                        <div style={{position: 'absolute',top: '60%', left: '50%', zIndex: 1, height: 30, width: 30 }}>
+                          <img style={{ objectFit:'cover', width: 30, height: 30 }} src={img.mapmarker} />
+                        </div>
+
+                      </div>
                       <Button
                         style={{
                           paddingTop: 10,
@@ -342,8 +340,7 @@ class AddCompany extends Component {
                         }}
                         color="success"
                         block
-                        onClick={() => this.onUpdateClick()}
-                        disabled={this.state.isAddressButtonActive ? false : true}
+                        onClick={() => this.checkInput()}
                       >
                         {this.state.userName === "" ? "Next" : "Save Changes"}
                       </Button>

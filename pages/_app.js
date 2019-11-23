@@ -6,20 +6,20 @@ import NextSeo from 'next-seo';
 
 // let's create a configuration for next-seo
 const DEFAULT_SEO = {
-  title: 'FoodieBee - Corporate Catering Services and Marketplace | Local Caterers',
-  description: 'FoodieBee, Ireland first catering marketplace platform. We provide wide ranges of restaurants and local caterers suitable for corporate caterings such as breakfast, lunch, events, and meetings. Order online for free through FoodieBee.',
+  title: 'FoodieBee | Your lunch awaits',
+  description: 'Discover scrumptious lunch from local restaurants at the best price you will ever find. Order ahead, bypass the queue, pickup the food and enjoy!',
   openGraph: {
     type: 'website',
     locale: 'en_IE',
     url: 'https://www.foodiebee.eu',
-    title: 'FoodieBee - Corporate Catering Services and Marketplace | Local Caterers',
+    title: 'FoodieBee | Your lunch awaits',
     description: 'FoodieBee, Ireland first catering marketplace platform. We provide wide ranges of restaurants and local caterers suitable for corporate caterings such as breakfast, lunch, events, and meetings. Order online for free through FoodieBee.',
     images: [
       {
         url: 'https://foodiebeegeneralphoto.s3-eu-west-1.amazonaws.com/FoodieBee_coverphoto.jpg',
         width: 2896,
         height: 1448,
-        alt: 'FoodieBee Catering',
+        alt: 'FoodieBee | Your lunch awaits',
       },
       {
         url: 'https://foodiebeegeneralphoto.s3-eu-west-1.amazonaws.com/FoodieBee_logo.png',

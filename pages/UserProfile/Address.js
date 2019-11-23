@@ -205,7 +205,7 @@ class Address extends Component {
     var addNewCompany = {
       _id: 0,
       companyName: "Add new company: ",
-      companyAddress: searchCompany
+      companyFullAddress: searchCompany
     }
 
     var url = apis.GETcompany + "?companyName=" + searchCompany
@@ -236,10 +236,10 @@ class Address extends Component {
 
   renderWorkAddressModal() {
 
-    const searchList = this.state.companyList.map(({ _id, companyName, companyAddress }) => {
+    const searchList = this.state.companyList.map(({ _id, companyName, companyFullAddress }) => {
       return {
         value: _id,
-        label: _id === 0 ? companyName + companyAddress : companyName + " | " + companyAddress
+        label: _id === 0 ? companyName + companyFullAddress : companyName + " | " + companyFullAddress
       };
     });
 
@@ -303,9 +303,7 @@ class Address extends Component {
               <b style={{fontSize: 16}}>{companydetails[i].companyName}</b>
             </div>
 
-            <div style={{marginTop: 20, fontWeight: 500, opacity: 0.7, color: 'black'}}><Label>{companydetails[i].companyAddress}</Label></div>
-
-            <div style={{marginTop: 5, fontWeight: 500, opacity: 0.7, color: 'black'}}><Label>{companydetails[i].companyDistrict}, {companydetails[i].companyCity}</Label></div>
+            <div style={{marginTop: 20, fontWeight: 500, opacity: 0.7, color: 'black'}}><Label>{companydetails[i].companyFullAddress}</Label></div>
 
             <Row>
               <Col xs="12">

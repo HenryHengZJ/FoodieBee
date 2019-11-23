@@ -39,17 +39,24 @@ export function listCounties() {
   return CountyData
 }
 
-export function timeRanges() {
+/*export function timeRanges() {
   var timerange = [];
   var countval = 0
   for(var x = 500; x < 2400; x+=30) {
-    if (countval === 2) {
+    if (countval === 4) {
       x = (x + 100) - 60
       countval = 0
     }
     countval = countval + 1
     timerange.push(reformatInput(x+""))
   }
+  return timerange
+}*/
+
+export function timeRanges() {
+  var timerange = ['11:30 AM','11:45 AM','12:00 PM','12:15 PM','12:30 PM','12:45 PM','13:00 PM','13:15 PM','13:30 PM','13:45 PM', '14:00 PM',
+                    '14:15 PM', '14:30 PM', '14:45 PM', '15:00 PM', '15:15 PM', '15:30 PM'];
+  
   return timerange
 }
 

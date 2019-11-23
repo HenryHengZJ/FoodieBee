@@ -32,7 +32,6 @@ class NavBar extends Component {
   componentDidMount() {
 
     if (typeof Cookies.get('userName') !== 'undefined') {
-    //  alert(Cookies.get('userName'))
       this.setState({
         userName: Cookies.get('userName'),
       })
@@ -118,6 +117,7 @@ class NavBar extends Component {
     const darkVal = theme === 'dark' ? true : false;
     const imgsrc = theme === 'dark' ? '/static/brandlogo_dark.png' : '/static/brandlogo_light.png';
     const colorVal = theme === 'dark' ? 'white' : null;
+    const opacityVal = theme === 'dark' ? 1 : this.state.userNameHover ? 0.8 : 0.6;
     const userLoggedInVal = this.state.userName === "" ? false : true
     const cateringVal = catering ? catering : false
     const landingpageVal = landingpage ? landingpage : false
@@ -132,28 +132,31 @@ class NavBar extends Component {
           <Collapse isOpen={this.state.isOpen} navbar>
             <Nav className="ml-auto" navbar>
               <NavItem>
-                <NavLink href="/caterersignup" onClick={e => this.caterersignupClicked(e)} style={{ cursor: 'pointer', color: this.state.aboutUsHover ? "#20a8d8" : colorVal, fontWeight: '600', fontSize: 15, paddingLeft: 20, paddingRight: 20}} target="_blank">For Restaurants</NavLink>
+                <NavLink href="/caterersignup" onClick={e => this.caterersignupClicked(e)} style={{ cursor: 'pointer', color: colorVal, fontWeight: '600', fontSize: 15, paddingLeft: 20, paddingRight: 20}} target="_blank">For Restaurants</NavLink>
               </NavItem>
               <NavItem>
-                <NavLink href="/contactus" onClick={e => this.contactUsClicked(e)} style={{ cursor: 'pointer', color: this.state.contactUsHover ? "#20a8d8" : colorVal, fontWeight: '600', fontSize: 15, paddingLeft: 20, paddingRight: 20}} target="_blank">Contact</NavLink>
+                <NavLink href="/contactus" onClick={e => this.contactUsClicked(e)} style={{ cursor: 'pointer', color: colorVal, fontWeight: '600', fontSize: 15, paddingLeft: 20, paddingRight: 20}} target="_blank">Contact</NavLink>
               </NavItem>
 
               {userLoggedInVal ?
-              <NavItem>
+              <NavItem onMouseEnter={()=> this.toggleHover("userNameHover")} onMouseLeave={()=> this.toggleHover("userNameHover")}>
                 <UncontrolledDropdown isOpen={this.state.dropDown}  toggle={() => this.toggleDropDown()}>
                   <DropdownToggle
                     style={{
-                      color: theme === 'dark' ? "white" : "#F5F5F5",
+                      color: colorVal,
                       borderWidth: 0,
                       marginRight:10,
                       backgroundColor: "transparent",
+                      opacity: opacityVal
                     }}
                     caret
                   >
-                  <Label style={{ paddingLeft: this.state.isOpen ? 8 : 0, fontWeight: '500', cursor: 'pointer', paddingRight: 5, paddingTop:2, fontSize: 15, color: this.state.userNameHover ? "#20a8d8" : colorVal, margin : 0, }}>{this.state.userName}</Label> 
+                  <Label style={{ paddingLeft: this.state.isOpen ? 8 : 0, fontWeight: '500', cursor: 'pointer', paddingRight: 5, paddingTop:2, fontSize: 15, color: colorVal, margin : 0, }}>{this.state.userName}</Label> 
                   </DropdownToggle>
                   <DropdownMenu right style={{ right: 0, left: 'auto' }}>
                     <DropdownItem href="/userprofile/Account Info" onClick={() => this.navItemClicked("Account Info")}>Account Info</DropdownItem>
+                    <DropdownItem onClick={() => this.navItemClicked("Go Prime")}>Go Prime</DropdownItem>
+                    <DropdownItem onClick={() => this.navItemClicked("Free Rewards")}>Free Rewards</DropdownItem>
                     <DropdownItem onClick={() => this.navItemClicked("Orders")}>Orders</DropdownItem>
                     <DropdownItem onClick={() => this.navItemClicked("Payment Methods")}>Payment Methods</DropdownItem>
                     <DropdownItem onClick={() => this.navItemClicked("Company Address")}>Company Address</DropdownItem>

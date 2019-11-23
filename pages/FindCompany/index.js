@@ -138,7 +138,7 @@ class FindCompany extends Component {
     var addNewCompany = {
       _id: 0,
       companyName: "Add new company: ",
-      companyAddress: searchCompany
+      companyFullAddress: searchCompany
     }
 
     var url = apis.GETcompany + "?companyName=" + searchCompany
@@ -162,10 +162,10 @@ class FindCompany extends Component {
 
   render() {
 
-    const searchList = this.state.companyList.map(({ _id, companyName, companyAddress }) => {
+    const searchList = this.state.companyList.map(({ _id, companyName, companyFullAddress }) => {
       return {
         value: _id,
-        label: _id === 0 ? companyName + companyAddress : companyName + " | " + companyAddress
+        label: _id === 0 ? companyName + companyFullAddress : companyName + " | " + companyFullAddress
       };
     });
 
@@ -186,7 +186,7 @@ class FindCompany extends Component {
       <Layout title={'Find Company'}>
         <NextSeo
           config={{
-            title: 'Find Company | FoodieBee - Corporate Catering Services and Marketplace | Local Caterers',
+            title: 'Find Company | FoodieBee',
           }}
         />
         <div style={{backgroundColor: 'white'}}>

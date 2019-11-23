@@ -132,7 +132,7 @@ class Hero extends React.Component {
     var addNewCompany = {
       _id: 0,
       companyName: "Add new company: ",
-      companyAddress: searchCompany
+      companyFullAddress: searchCompany
     }
 
     var url = apis.GETcompany + "?companyName=" + searchCompany
@@ -156,10 +156,10 @@ class Hero extends React.Component {
 
   render() {
 
-    const searchList = this.state.companyList.map(({ _id, companyName, companyAddress }) => {
+    const searchList = this.state.companyList.map(({ _id, companyName, companyFullAddress }) => {
       return {
         value: _id,
-        label: _id === 0 ? companyName + companyAddress : companyName + " | " + companyAddress
+        label: _id === 0 ? companyName + companyFullAddress : companyName + " | " + companyFullAddress
       };
     });
 
@@ -176,7 +176,7 @@ class Hero extends React.Component {
             
             <Col style={{textAlign: 'center', color: 'white',}} xs="12">
               <h1 style={{fontSize: 40}}>
-                Office Lunch from just €6
+                Get Lunch from just €6
               </h1>
             </Col>
 

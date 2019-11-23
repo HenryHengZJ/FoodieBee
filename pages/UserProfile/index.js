@@ -38,10 +38,12 @@ import NavBar from '../../components/NavBar';
 import Footer from '../../components/Footer';
 import Layout from '../../components/Layout';
 import Account from './Account'
+import GoPrime from './GoPrime'
 import Address from './Address'
 import Order from './Order'
 import Review from './Review'
 import Payment from './Payment'
+import FreeRewards from './FreeRewards'
 import moment from "moment";
 import { format, addDays, subDays } from 'date-fns';
 import Router from 'next/router'
@@ -91,6 +93,8 @@ class UserProfile extends Component {
       menuDropDownOpen: false,
       menutitle: [
         "Account Info",
+        "Go Prime",
+        'Free Rewards',
         "Orders",
         "Payment Methods",
         "Company Address",
@@ -148,36 +152,6 @@ class UserProfile extends Component {
     });
   }
 
-  getOrderDetail= () => {
-    var headers = {
-      'Content-Type': 'application/json',
-    }
-
-    var url = apis.GETcatererprofile + "/" + this.state.restaurantInfo.catererID;
-
-    axios.get(url, {withCredentials: true}, {headers: headers})
-      .then((response) => {
-        if (response.status === 200) {
-          var restaurantInfo = this.state.restaurantInfo
-          restaurantInfo.catererID = response.data[0]._id;
-          restaurantInfo.catererName = typeof response.data[0].catererName !== 'undefined' ? response.data[0].catererName : "";
-          restaurantInfo.profilesrc = typeof response.data[0].profilesrc !== 'undefined' ? response.data[0].profilesrc : "";
-          restaurantInfo.coversrc = typeof response.data[0].coversrc !== 'undefined' ? response.data[0].coversrc : "https://stmed.net/sites/default/files/food-wallpapers-28249-101905.jpg";
-          restaurantInfo.catererAddress = typeof response.data[0].catererAddress !== 'undefined' ? response.data[0].catererAddress : "";
-          restaurantInfo.rating = typeof response.data[0].rating !== 'undefined' ? response.data[0].rating : 0;
-          restaurantInfo.numofreview = typeof response.data[0].numofreview !== 'undefined' ? response.data[0].numofreview : 0;
-          restaurantInfo.deliveryfee = typeof response.data[0].deliveryfee !== 'undefined' ? response.data[0].deliveryfee : 0;
-          restaurantInfo.minimumspend = typeof response.data[0].minimumspend !== 'undefined' ? response.data[0].minimumspend : 0;
-          restaurantInfo.openinghours = typeof response.data[0].openinghours !== 'undefined' ? response.data[0].openinghours : [];
-          this.setState({
-            restaurantInfo: restaurantInfo
-          })
-        } 
-      })
-      .catch((error) => {
-      });
-  }
-
   ////////////////////////////////////////////////Render////////////////////////////////////////////////////////
   
   renderNavItem(menutitle) {
@@ -220,12 +194,22 @@ class UserProfile extends Component {
     )
   }
 
+  renderGoPrime() {
+    return (
+      <StripeProvider stripe={this.state.stripe}>
+        <Elements>
+          <GoPrime/>
+        </Elements>
+      </StripeProvider>
+    )
+  }
+
   renderPaymentMethods() {
     return (
       <StripeProvider stripe={this.state.stripe}>
-      <Elements>
-        <Payment/>
-      </Elements>
+        <Elements>
+          <Payment/>
+        </Elements>
       </StripeProvider>
     )
   }
@@ -240,6 +224,12 @@ class UserProfile extends Component {
     return (
       <Review/>
     );
+  }
+
+  renderFreeRewards() {
+    return (
+      <FreeRewards/>
+    )
   }
 
   ////////////////////////////////////////////////Render Modal////////////////////////////////////////////////////////
@@ -263,6 +253,8 @@ class UserProfile extends Component {
           </DropdownToggle>
           <DropdownMenu style={{width: '100%'}}>
             <DropdownItem onClick={() => this.navItemClicked("Account Info")}>Account Info</DropdownItem>
+            <DropdownItem onClick={() => this.navItemClicked("Go Prime")}>Go Prime</DropdownItem>
+            <DropdownItem onClick={() => this.navItemClicked("Free Rewards")}>Free Rewards</DropdownItem>
             <DropdownItem onClick={() => this.navItemClicked("Orders")}>Orders</DropdownItem>
             <DropdownItem onClick={() => this.navItemClicked("Payment Methods")}>Payment Methods</DropdownItem>
             <DropdownItem onClick={() => this.navItemClicked("Delivery Addresses")}>Delivery Addresses</DropdownItem>
@@ -277,11 +269,11 @@ class UserProfile extends Component {
 
     return (
      
-      <Layout title={this.state.selectedMenu + ' Customer Details'}>
+      <Layout title={"FoodieBee - " + this.state.selectedMenu}>
 
       <NextSeo
         config={{
-          title: this.state.selectedMenu + ' Customer Details',
+          title: "FoodieBee - " + this.state.selectedMenu,
         }}
       />
     
@@ -302,6 +294,8 @@ class UserProfile extends Component {
                   {this.renderNavItem(this.state.menutitle[2])}
                   {this.renderNavItem(this.state.menutitle[3])}
                   {this.renderNavItem(this.state.menutitle[4])}
+                  {this.renderNavItem(this.state.menutitle[5])}
+                  {this.renderNavItem(this.state.menutitle[6])}
                 </Nav>
               </Col> : null}
 
@@ -309,6 +303,8 @@ class UserProfile extends Component {
 
               <Col style={{ marginTop: 20 }} xs="12" sm="12" md="12" lg="12">
                 {this.state.selectedMenu === "Account Info" ? this.renderAccountInfo() :
+                this.state.selectedMenu === "Go Prime" ? this.renderGoPrime() :
+                this.state.selectedMenu === "Free Rewards" ? this.renderFreeRewards() :
                 this.state.selectedMenu === "Orders" ? this.renderOrderTable() :
                 this.state.selectedMenu === "Payment Methods" ? this.renderPaymentMethods() :
                 this.state.selectedMenu === "Company Address" ? this.renderWorkAddress() :

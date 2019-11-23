@@ -285,7 +285,7 @@ class PrivacyPolicy extends Component {
       <Layout title={'Privacy Policy'}>
       <NextSeo
         config={{
-          title: 'Privacy Policy | FoodieBee - Corporate Catering Services and Marketplace | Local Caterers',
+          title: 'Privacy Policy | FoodieBee',
         }}
       />
       <div style={{backgroundColor: 'white'}}>

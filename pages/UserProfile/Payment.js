@@ -45,12 +45,6 @@ import apis from "../../apis";
 import {server} from "../../config"
 import Cards from 'react-credit-cards';
 import {
-  formatCreditCardNumber,
-  formatCVC,
-  formatExpirationDate,
-  formatFormData,
-} from '../../utils';
-import {
   CardElement,
   CardNumberElement,
   CardExpiryElement,
@@ -77,7 +71,7 @@ class Payment extends Component {
         isCardHolderNameEmpty: false,
         isCardInvalid: false,
         paymentCardModalOpen: false,
-        customerPaymentAccoundID: "",
+        customerPaymentAccountID: "",
         customerEmail: "",
         paymentcarddetails: [],
         customerpaymentaccountdetails: [],
@@ -100,7 +94,7 @@ class Payment extends Component {
         if (response.status === 200) {
           this.setState({
             customerEmail: typeof response.data[0].customerEmail !== 'undefined' ? response.data[0].customerEmail : "",
-            customerPaymentAccoundID: typeof response.data[0].customerPaymentAccoundID !== 'undefined' ? response.data[0].customerPaymentAccoundID : "",
+            customerPaymentAccountID: typeof response.data[0].customerPaymentAccountID !== 'undefined' ? response.data[0].customerPaymentAccountID : "",
           }, () => {
             this.getCustomerPaymentAccount()
           })
@@ -124,7 +118,7 @@ class Payment extends Component {
       'Content-Type': 'application/json',
     }
 
-    var url = apis.GETcustomer_paymentaccount+ "?customerPaymentAccoundID=" + this.state.customerPaymentAccoundID;
+    var url = apis.GETcustomer_paymentaccount+ "?customerPaymentAccountID=" + this.state.customerPaymentAccountID;
 
     axios.get(url, {withCredentials: true}, {headers: headers})
       .then((response) => {
@@ -151,7 +145,7 @@ class Payment extends Component {
       'Content-Type': 'application/json',
     }
 
-    var url = apis.GETcustomer_card+ "?customerPaymentAccoundID=" + this.state.customerPaymentAccoundID;
+    var url = apis.GETcustomer_card+ "?customerPaymentAccountID=" + this.state.customerPaymentAccountID;
 
     axios.get(url, {withCredentials: true}, {headers: headers})
       .then((response) => {
@@ -202,7 +196,7 @@ class Payment extends Component {
             })
           }
           else {
-            if (this.state.customerPaymentAccoundID !== "") {
+            if (this.state.customerPaymentAccountID !== "") {
               this.saveNewCard(paymentMethod.id)
               console.log(paymentMethod)
             }
@@ -222,7 +216,7 @@ class Payment extends Component {
               })
             }
             else {
-              if (this.state.customerPaymentAccoundID !== "") {
+              if (this.state.customerPaymentAccountID !== "") {
                 this.updateUserPaymentAccount(token.id)
               }
               else {
@@ -243,7 +237,7 @@ class Payment extends Component {
 
     var body = {
       paymentID: paymentID,
-      customerPaymentAccoundID: this.state.customerPaymentAccoundID
+      customerPaymentAccountID: this.state.customerPaymentAccountID
     }
 
     axios.post(url, body, {withCredentials: true}, {headers: headers})
@@ -289,7 +283,7 @@ class Payment extends Component {
       .then((response) => {
         if (response.status === 200) {
           this.setState({
-            customerPaymentAccoundID: response.data.id
+            customerPaymentAccountID: response.data.id
           }, () => {
             this.updateCustomerMongo()
           })
@@ -314,7 +308,7 @@ class Payment extends Component {
     }
 
     var body = {
-      customerPaymentAccoundID: this.state.customerPaymentAccoundID,
+      customerPaymentAccountID: this.state.customerPaymentAccountID,
     }
 
     var url = apis.UPDATEcustomerprofile;
@@ -352,7 +346,7 @@ class Payment extends Component {
       'Content-Type': 'application/json',
     }
 
-    var url = apis.DELETEcustomer_card + "?customerPaymentAccoundID=" + this.state.customerPaymentAccoundID + "&paymentID=" + paymentID;
+    var url = apis.DELETEcustomer_card + "?customerPaymentAccountID=" + this.state.customerPaymentAccountID + "&paymentID=" + paymentID;
 
     axios.delete(url, {withCredentials: true}, {headers: headers})
       .then((response) => {
@@ -377,7 +371,7 @@ class Payment extends Component {
 
     var body = {
       paymentID: paymentID,
-      customerPaymentAccoundID: this.state.customerPaymentAccoundID
+      customerPaymentAccountID: this.state.customerPaymentAccountID
     }
 
     var url = apis.PUTupdate_customer_card;

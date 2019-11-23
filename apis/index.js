@@ -1,14 +1,9 @@
 
 export default {
 
-    /*Daily Menu API*/
-    GETdailyMenu: "/dailyMenu/getDailyMenu",
-
-    /*Published Caterer API*/
-    GETcatererprofile: "/catererPublished/getcatererprofile",
-    GETcaterer: "/catererPublished/getcaterer",
-
-     /*Caterer API*/
+    /*Caterer API*/
+    GETcatererprofile: "/caterer/getcatererprofile",
+    GETcaterer: "/caterer/getcaterer",
     POSTnewcaterersignup: "/caterer/newcaterersignup",
 
     /*Customer API*/
@@ -21,24 +16,18 @@ export default {
     POSTcompany: "/company/postcompany",
 
     /*Lunch Menu API*/
-    GETlunchmenu: "/lunchMenuPublished/get_lunchmenu_published",
-
-    /*Menu API*/
-    GETmenu: "/menuPublished/getmenu",
+    GETlunchmenu: "/lunchMenu/get_lunchmenu",
 
     /*Review API*/
     GETreview: "/review/getreview",
     GETcaterer_review: "/review/get_caterer_review",
+    POSTreview: "/review/addreview",
+    UPDATEreview: "/review/updatereview",
 
     /*Lunch Order API*/
     GETlunchorder: "/lunchorder/getlunchorder",
     POSTlunchaddorder: "/lunchorder/addlunchorder",
     PUTupdatelunchorder: "/lunchorder/updatelunchorder",
-
-    /*Order API*/
-    GETorder: "/order/getorder",
-    POSTaddorder: "/order/addorder",
-    PUTupdateorder: "/order/updateorder",
 
     /*Payment API*/
     GETcustomer_paymentaccount: "/payment/get_customer_paymentaccount",
@@ -49,11 +38,9 @@ export default {
     POSTcreate_customer_paymentaccount: "/payment/create_customer_paymentaccount",
     UPDATE_customer_paymentaccount: "/payment/update_customer_paymentaccount",
     DELETEcustomer_card: "/payment/detach_customer_card",
-
-    /*Cart API*/
-    GETcart: "/cart/getcart",
-    UPDATEcart: "/cart/updatecart",
-    DELETEcart: "/cart/deletecart",
+    DELETE_cancel_payment_intent: "/payment/cancel_paymentIntent",
+    POSTcustomer_subscribe: '/payment/create_subscription',
+    DELETE_cancel_subscription: "/payment/cancel_subscription",
 
     /*Auth API*/
     POSTcustomersignup: "/auth/customersignup",

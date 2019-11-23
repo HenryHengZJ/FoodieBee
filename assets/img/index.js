@@ -33,6 +33,7 @@ export default {
 	dropdown: "https://s3-eu-west-1.amazonaws.com/foodiebeegeneralphoto/dropdown.png",	
 	dropup: "https://s3-eu-west-1.amazonaws.com/foodiebeegeneralphoto/dropup.png",
 	dropright: "https://s3-eu-west-1.amazonaws.com/foodiebeegeneralphoto/dropright.png",
+	dropright_orange: "https://s3-eu-west-1.amazonaws.com/foodiebeegeneralphoto/dropright_orange.png",
 	eat: "https://s3-eu-west-1.amazonaws.com/foodiebeegeneralphoto/eat.png",
    	eat1: "https://s3-eu-west-1.amazonaws.com/foodiebeegeneralphoto/eat1.png",
 	english: "https://s3-eu-west-1.amazonaws.com/foodiebeegeneralphoto/english.jpg",

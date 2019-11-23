@@ -313,8 +313,6 @@ class Account extends Component {
   render() {
     return (
       <Row style={{flex: 1, display: 'flex'}} >
-      
-        
         <Col md="9" lg="7" xl="6">
           <Col style={{ paddingLeft:30, marginTop: 10, marginBottom: 20 }} xs="12" md="6">
             <b className="h5">Account Info</b>

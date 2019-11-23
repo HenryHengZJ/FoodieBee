@@ -1,13 +1,13 @@
 var express = require('express');
 var router = express.Router();
-var LunchMenu = require('../../models/lunchMenuPublished');
+var LunchMenu = require('../../models/lunchMenu');
 var Caterer = require('../../models/caterer');
 var Company = require('../../models/company');
 var ObjectId = require('mongodb').ObjectID;
 var passport = require('passport');
 var moment = require('moment');
 
-router.get('/get_lunchmenu_published',  (req, res) => {
+router.get('/get_lunchmenu',  (req, res) => {
 
     var company_matchquery =  {};
 
@@ -24,7 +24,7 @@ router.get('/get_lunchmenu_published',  (req, res) => {
                 var latitude = company_doc[0].location.coordinates[0]
                 var longitude = company_doc[0].location.coordinates[1]
 
-                var restaurant_matchquery =  {status: "verified"};
+                var restaurant_matchquery =  {status: "verified", catererPaymentAccountID: { $exists: true }};
 
                 if (typeof longitude !== 'undefined' && typeof latitude !== 'undefined')
                 {
@@ -92,7 +92,7 @@ router.get('/get_lunchmenu_published',  (req, res) => {
 
 })
 
-router.put('/update_lunchmenu_published', (req, res) => {
+router.put('/update_lunchmenu', (req, res) => {
 
     var matchquery;
     if (typeof req.query._id === 'undefined') {

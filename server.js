@@ -37,7 +37,6 @@ nextApp.prepare().then(() => {
     cacheTime: 600000,        // 600 sec - cache purge period
     urls: [
       { url: '',  changefreq: 'daily', priority: 0.7 },
-      { url: '/aboutus',  changefreq: 'monthly', priority: 0.3 },
       { url: '/contactus',  changefreq: 'monthly',  priority: 0.3 },
       { url: '/login',  changefreq: 'monthly',  priority: 0.3 },
       { url: '/register',  changefreq: 'monthly',  priority: 0.3 },
@@ -58,37 +57,23 @@ nextApp.prepare().then(() => {
   //app.use(express.static(path.join(__dirname, 'client/build')));
 
   // router files ===============================================================
-	var testRoutes   = require('./routes/test');
 	var authRoutes   = require('./routes/auth');
-  var catererPublishedRoutes   = require('./routes/catererPublished');
   var catererRoutes   = require('./routes/caterer');
 	var customerRoutes   = require('./routes/customer');
-	var menuPublishedRoutes   = require('./routes/menuPublished');
-	var cartRoutes   = require('./routes/cart');
-  var orderRoutes   = require('./routes/order');
   var lunchOrderRoutes   = require('./routes/lunchOrder');
   var paymentRoutes   = require('./routes/payment');
   var reviewRoutes   = require('./routes/review');
-  var twilioRoutes   = require('./routes/twilio');
-  var dailyMenuRoutes = require('./routes/dailyMenu');
-  var lunchMenuPublishedRoutes = require('./routes/lunchMenuPublished');
+  var lunchMenuRoutes = require('./routes/lunchMenu');
   var companyRoutes = require('./routes/company');
 
 	// routes ======================================================================
-	app.use('/test', testRoutes);
   app.use('/auth', authRoutes);
-  app.use('/catererPublished', catererPublishedRoutes);
   app.use('/caterer', catererRoutes);
 	app.use('/customer', customerRoutes);
-	app.use('/menuPublished', menuPublishedRoutes);
-  app.use('/cart', cartRoutes);
-  app.use('/order', orderRoutes);
   app.use('/lunchOrder', lunchOrderRoutes);
   app.use('/payment', paymentRoutes);
   app.use('/review', reviewRoutes);
-  app.use('/twilio', twilioRoutes);
-  app.use('/dailyMenu', dailyMenuRoutes);
-  app.use('/lunchMenuPublished', lunchMenuPublishedRoutes);
+  app.use('/lunchMenu', lunchMenuRoutes);
   app.use('/company', companyRoutes);
   
   app.get('/sitemap.xml', function(req, res) {
@@ -118,22 +103,9 @@ nextApp.prepare().then(() => {
     res.status(200).json({});
   }) 
 
-  app.get('/catering', (req,res) => {
-    return nextApp.render(req, res, '/CateringLandingPage',  req.query )
-  })  
- 
-  app.get('/searchcaterer', (req,res) => {
-    console.log("searchcaterer")
-    return nextApp.render(req, res, '/SearchCaterer',  req.query )
-  })  
-
   app.get('/searchlunch', (req,res) => {
     return nextApp.render(req, res, '/SearchLunch',  req.query )
   })  
-
-  app.get('/catererdetail/:id', (req,res) => {
-    return nextApp.render(req, res, '/CatererDetail', { id: req.params.id })
-  }) 
 
   app.get('/login', (req,res) => {
     return nextApp.render(req, res, '/Login', req.query)
@@ -154,14 +126,6 @@ nextApp.prepare().then(() => {
   app.get('/caterersignup', (req,res) => {
     return nextApp.render(req, res, '/CatererSignUp')
   })
-  
-  app.get('/catererlogin', (req,res) => {
-    return nextApp.render(req, res, '/CatererLogin')
-  })
-
-  app.get('/checkout/:cartID/:catererID', (req,res) => {
-    return nextApp.render(req, res, '/CheckOut', { cartID: req.params.cartID, catererID: req.params.catererID })
-  }) 
 
   app.get('/userprofile/:userprofilepage', (req,res) => {
     var returnquery = req.query
@@ -175,10 +139,6 @@ nextApp.prepare().then(() => {
 
   app.get('/resetpassword/:resetPasswordToken', (req,res) => {
     return nextApp.render(req, res, '/ResetPassword',  { resetPasswordToken: req.params.resetPasswordToken } )
-  })  
-
-  app.get('/aboutus', (req,res) => {
-    return nextApp.render(req, res, '/AboutUs')
   })  
 
   app.get('/contactus', (req,res) => {

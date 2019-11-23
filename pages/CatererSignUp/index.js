@@ -31,7 +31,7 @@ class CatererSignUp extends Component {
       <Layout title={'Caterer Sign Up'}>
       <NextSeo
         config={{
-          title: 'Caterer Sign Up | FoodieBee - Corporate Catering Services and Marketplace | Local Caterers',
+          title: 'Caterer Sign Up | FoodieBee',
         }}
       />
       <div id="CatererSignUp">

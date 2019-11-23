@@ -32,9 +32,11 @@ import img from "../../assets/img"
 import Select from "react-select";
 import Lottie from 'react-lottie';
 import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { throwStatement } from 'babel-types';
 import GoogleMapReact from 'google-map-react';
 import getConfig from 'next/config'
+import { timeRanges } from  "../../utils"
 
 const {publicRuntimeConfig} = getConfig()
 const {GOOGLE_API_KEY} = publicRuntimeConfig
@@ -152,6 +154,8 @@ class SearchLunchChild extends Component {
       locationquerystring: this.props.locationquerystring,
     }, () => {
       this.getCompanyAddress(this.state.companyID)
+      this.checkIfMenuExpired()
+      this.checkIfUserHasMadeOrderToday()
     })
   }
 
@@ -177,26 +181,37 @@ class SearchLunchChild extends Component {
       dropDownAddress: false,
       isSearchBarOpen: false,
       selectedCompany: {},
+      selectedPickUpTime: "",
       menuModalOpen: false,
       primeModalOpen: false,
       activeMenu: null,
       activeIndex: -1,
+
       holdername: '',
       cardElement: null,
       isCardHolderNameEmpty: false,
       isCardInvalid: false,
       paymentCardModalOpen: false,
-      customerPaymentAccoundID: "",
+      failedModal: false,
+      successModal: false,
+      limitModal: false,
+      customerPaymentAccountID: "",
       customerEmail: "",
-      paymentcarddetails: [],
-      customerpaymentaccountdetails: [],
-
       customerIsPrime: false,
+      customerPaymentCardID: "",
+      customerPaymentCardBrand: "",
+      subscriptionID: "",
+
       center: null,
       isMapView: false,
       searchName: "",
       currentDateString: "",
+
+      isMenuExpired: false,
+      customerHasOrderedToday: false,
     }
+
+    this.time  = timeRanges();
   }
 
   componentDidMount() {
@@ -246,6 +261,8 @@ class SearchLunchChild extends Component {
         loading: false
       }, () => {
         this.getCompanyAddress(this.state.companyID)
+        this.checkIfMenuExpired()
+        this.checkIfUserHasMadeOrderToday()
       })
     })
     .catch(err => {
@@ -269,7 +286,7 @@ class SearchLunchChild extends Component {
       if (data.length> 0) {
         var selectedCompany =  {
           value: data[0]._id,
-          label: data[0].companyName + " | " + data[0].companyAddress
+          label: data[0].companyName + " | " + data[0].companyFullAddress
         }
 
         var center = {
@@ -302,8 +319,9 @@ class SearchLunchChild extends Component {
         if (response.status === 200) {
           this.setState({
             customerEmail: typeof response.data[0].customerEmail !== 'undefined' ? response.data[0].customerEmail : "",
-            customerPaymentAccoundID: typeof response.data[0].customerPaymentAccoundID !== 'undefined' ? response.data[0].customerPaymentAccoundID : "",
+            customerPaymentAccountID: typeof response.data[0].customerPaymentAccountID !== 'undefined' ? response.data[0].customerPaymentAccountID : "",
             customerIsPrime: typeof response.data[0].customerIsPrime !== 'undefined' ? response.data[0].customerIsPrime : false,
+            subscriptionID: typeof response.data[0].subscriptionID !== 'undefined' ? response.data[0].subscriptionID : "",
           })
         } 
       })
@@ -312,6 +330,69 @@ class SearchLunchChild extends Component {
 
   };
   
+  checkIfMenuExpired = () => {
+    var timenow = parseInt(moment(new Date()).format("HHmm"));
+   
+    if (timenow > 1100 && timenow < 1700) {
+      this.setState({
+        isMenuExpired: true
+      })
+    }
+    else {
+      var currentDateString = null
+
+      if (timenow >= 1700) {
+        currentDateString = moment().add(1, 'days').format("ddd, DD MMM YYYY")
+      }
+      else {
+        currentDateString = moment().format("ddd, DD MMM YYYY")
+      }
+
+      this.setState({
+        isMenuExpired: false,
+        currentDateString
+      })
+    }
+  }
+
+  checkIfUserHasMadeOrderToday = () => {
+    var headers = {
+      'Content-Type': 'application/json',
+    }
+
+    var datequery = null
+
+    var timenow = parseInt(moment(new Date()).format("HHmm"));
+    if (timenow > 1700) {
+      //Add 1 day
+      datequery = moment().add(1, 'days').format("ddd, DD MMM YYYY");
+    }
+    else {
+      datequery = moment().format("ddd, DD MMM YYYY");
+    }
+
+    var url = apis.GETlunchorder + "?lteDate=" + datequery + "&gteDate=" + datequery;
+
+    axios.get(url, {withCredentials: true}, {headers: headers})
+      .then((response) => {
+        if (response.status === 200) {
+          if (response.data.length > 0) {
+            for (let i = 0; i < response.data.length; i++) {
+              var orderStatus = response.data[i].orderStatus
+              if (orderStatus === "pending" || orderStatus === "accepted" || orderStatus === "pickedup") {
+                this.setState({
+                  customerHasOrderedToday: true
+                })
+                return;
+              }
+            }
+          }
+        } 
+      })
+      .catch((error) => {
+      });
+  }
+
   toggleView= () => {
     this.setState({
       isMapView: !this.state.isMapView
@@ -321,6 +402,7 @@ class SearchLunchChild extends Component {
   toggleMenuModal() {
     this.setState({
       menuModalOpen: !this.state.menuModalOpen,
+      selectedPickUpTime: "",
     });
   }
 
@@ -340,6 +422,27 @@ class SearchLunchChild extends Component {
   signIn(e) {
     e.preventDefault()
 
+    var url = this.state.baseurl;
+    var locationquerystring = this.state.locationquerystring;
+   
+    url = url + locationquerystring; 
+
+    Router.push({
+      pathname: '/login',
+      query: {'returnurl': url}
+    })
+  }
+
+  goToOrders = () => {
+    this.setState({
+      successModal: false
+    }, () => {
+      Router.push(`/userprofile/Orders`, `/userprofile/Orders`)
+    })
+  }
+
+  goToLogin = () => {
+ 
     var url = this.state.baseurl;
     var locationquerystring = this.state.locationquerystring;
    
@@ -431,7 +534,7 @@ class SearchLunchChild extends Component {
     var addNewCompany = {
       _id: 0,
       companyName: "Add new company: ",
-      companyAddress: searchCompany
+      companyFullAddress: searchCompany
     }
 
     var url = apis.GETcompany + "?companyName=" + searchCompany
@@ -468,7 +571,18 @@ class SearchLunchChild extends Component {
   openMaps = (lat, lng) => {
     window.open("https://maps.google.com?q=" + lat + "," + lng);
   };
-  
+
+  getSaveAmount = (priceperunit, discountedprice) => {
+    var savedamount = parseFloat(priceperunit) - parseFloat(discountedprice)
+    return Number(savedamount).toFixed(2)
+  }
+ 
+  handlePickUpChange(e) {
+    this.setState({ 
+      selectedPickUpTime: e.target.value,
+    })
+  }
+
   findIcon = (iconname) => {
     var iconPath;
     if (iconname == 'Hot') { iconPath = hotIcon }
@@ -490,6 +604,24 @@ class SearchLunchChild extends Component {
     this.setState({ 
       holdername: e.target.value, 
       isCardHolderNameEmpty: false
+    })
+  }
+
+  dismissFailedModal = () => {
+    this.setState({
+      failedModal: false
+    })
+  }
+
+  dismissSuccessModal = () => {
+    this.setState({
+      successModal: false
+    })
+  }
+
+  toggleLimitModal = () => {
+    this.setState({
+      limitModal: !this.state.limitModal
     })
   }
 
@@ -516,7 +648,9 @@ class SearchLunchChild extends Component {
         .then(({paymentMethod, error}) => {
           if (error) {
             this.setState({
-              loadingModal: false
+              loadingModal: false,
+              paymentCardModalOpen: false,
+              failedModal: true
             })
           }
           else {
@@ -544,22 +678,17 @@ class SearchLunchChild extends Component {
       .then((response) => {
         if (response.status === 200) {
           this.setState({
-            customerPaymentAccoundID: response.data.id
+            customerPaymentAccountID: response.data.id
           }, () => {
             this.updateCustomerMongo()
           })
         } 
       })
       .catch((error) => {
-        console.log(error)
         this.setState({
           loadingModal: false,
-          paymentCardModalOpen: false
-        }, () => {
-          console.log("error 2 = ", error)
-          toast(<ErrorInfo/>, {
-            position: toast.POSITION.BOTTOM_RIGHT
-          });
+          paymentCardModalOpen: false,
+          failedModal: true,
         })
       });
   };
@@ -570,7 +699,7 @@ class SearchLunchChild extends Component {
     }
 
     var body = {
-      customerPaymentAccoundID: this.state.customerPaymentAccoundID,
+      customerPaymentAccountID: this.state.customerPaymentAccountID,
     }
 
     var url = apis.UPDATEcustomerprofile;
@@ -579,17 +708,9 @@ class SearchLunchChild extends Component {
       .then((response) => {
         if (response.status === 201) {
           this.setState({
-            loadingModal: false,
-            paymentCardModalOpen: false
+            paymentCardModalOpen: false,
           }, () => {
-            toast(<SuccessInfo/>, {
-              position: toast.POSITION.BOTTOM_RIGHT
-            });
-            var url = this.state.baseurl;
-            var locationquerystring = this.state.locationquerystring;
-            url = url + locationquerystring; 
-            var fullapiurl = apis.GETdailyMenu + locationquerystring;
-            this.getDataFromDb(fullapiurl)
+            this.getCustomerCard();
           })
         } 
       })
@@ -597,15 +718,154 @@ class SearchLunchChild extends Component {
         if (error) {
           this.setState({
             loadingModal: false,
-            paymentCardModalOpen: false
-          }, () => {
-            console.log("error 3 = ", error)
-            toast(<ErrorInfo/>, {
-              position: toast.POSITION.BOTTOM_RIGHT
-            });
+            paymentCardModalOpen: false,
+            failedModal: true
           })
         } 
       }); 
+  }
+
+  getCustomerCard = () => {
+
+    this.setState({
+      loadingModal: true
+    })
+
+    var headers = {
+      'Content-Type': 'application/json',
+    }
+
+    var url = apis.GETcustomer_card+ "?customerPaymentAccountID=" + this.state.customerPaymentAccountID;
+
+    axios.get(url, {withCredentials: true}, {headers: headers})
+      .then((response) => {
+        if (response.status === 200) {
+          this.setState({
+            customerPaymentCardID: response.data.data[0].id,
+            customerPaymentCardBrand: response.data.data[0].card.brand,
+          }, () => {
+            this.payByDefaultCard()
+          })
+        } 
+      })
+      .catch((error) => {
+        alert(error)
+        this.setState({
+          loadingModal: false,
+          paymentCardModalOpen: false,
+          failedModal: true
+        })
+      });
+  }
+
+  payByDefaultCard = () => {
+    const {customerEmail, customerPaymentAccountID, customerPaymentCardID, customerPaymentCardBrand} = this.state
+
+    var makepaymentdetails = {}
+    makepaymentdetails.customerEmail = customerEmail
+    makepaymentdetails.customerPaymentAccountID = customerPaymentAccountID
+    makepaymentdetails.paymentMethodID = customerPaymentCardID
+    makepaymentdetails.paymentType = customerPaymentCardBrand
+    makepaymentdetails.totalOrderPrice = this.state.customerIsPrime ? this.state.activeMenu.discountedprice : this.state.activeMenu.priceperunit
+    makepaymentdetails.catererPaymentAccountID = this.state.activeMenu.catererDetails[0].catererPaymentAccountID
+    makepaymentdetails.commission = this.state.customerIsPrime ? 0.05 : 0.1
+
+    var headers = {
+      'Content-Type': 'application/json',
+    }
+
+    var url = apis.POSTcustomer_makepayment;
+
+    axios.post(url, makepaymentdetails, {withCredentials: true}, {headers: headers})
+      .then((response) => {
+        if (response.status === 200) {
+          this.addLunchOrder(response.data.id, customerPaymentCardBrand);
+        } 
+      })
+      .catch((error) => {
+        this.setState({
+          loadingModal: false,
+          paymentCardModalOpen: false,
+          failedModal: true
+        })
+      });
+  }
+
+  addLunchOrder = (paymentIntentID, paymentType) => {
+
+    var pickupTime = null
+    var createdAt = null
+
+    var timenow = parseInt(moment(new Date()).format("HHmm"));
+    if (timenow > 1700) {
+      //Add 1 day
+      pickupTime = moment(this.state.selectedPickUpTime, 'hh:mm A').add(1, 'days').toISOString();
+      createdAt = moment().add(1, 'days').toISOString();
+    }
+    else {
+      pickupTime = moment(this.state.selectedPickUpTime, 'hh:mm A').toISOString();
+      createdAt = moment().toISOString();
+    }
+    
+    const {activeMenu} = this.state
+
+    var dataToUpdate = {
+      orderItemID: activeMenu._id,
+      orderItem:[
+        {
+          title: activeMenu.title,
+          descrip: activeMenu.descrip,
+          priceperunit: activeMenu.priceperunit,
+          src: activeMenu.src,
+        }
+      ],
+      catererID: activeMenu.catererID,
+      totalOrderPrice: this.state.customerIsPrime ? activeMenu.discountedprice : activeMenu.priceperunit,
+      commission: this.state.customerIsPrime ? 5 : 10,
+      netOrderPrice: this.calculateNetOrderPrice(),
+      orderStatus: 'pending',
+      paymentIntentID: paymentIntentID,
+      paymentType: paymentType,
+      paymentStatus: 'incomplete',
+      pickupTime: pickupTime,
+      createdAt: createdAt,  
+      updatedAt: createdAt, 
+    }
+
+    var headers = {
+      'Content-Type': 'application/json',
+    }
+
+    var url = apis.POSTlunchaddorder;
+
+    axios.post(url, dataToUpdate, {withCredentials: true}, {headers: headers})
+      .then((response) => {
+        if (response.status === 200) {
+          this.setState({
+            loadingModal: false,
+            successModal: true
+          })
+        } 
+      })
+      .catch((error) => {
+        this.setState({
+          loadingModal: false,
+          paymentCardModalOpen: false,
+          failedModal: true
+        })
+      });
+  
+  }
+
+  calculateNetOrderPrice = () => {
+    var netOrderPrice = 0
+    if (this.state.customerIsPrime) {
+      netOrderPrice = parseFloat(this.state.activeMenu.discountedprice) * 0.95
+    }
+    else {
+      netOrderPrice = parseFloat(this.state.activeMenu.priceperunit) * 0.90
+    }
+    return netOrderPrice.toFixed(2);
   }
 
   renderMarkAsIcon(markitem) {
@@ -769,7 +1029,6 @@ class SearchLunchChild extends Component {
     )
   }
 
-  
   renderLoadingModal() {
 
     const defaultOptions = {
@@ -794,8 +1053,122 @@ class SearchLunchChild extends Component {
               width={200}/>
 
             <p style={{textAlign: 'center', paddingLeft:20, paddingRight:20, fontSize: 16, fontWeight: '600'}}>
-              Please don't close the browser or refresh the page while we are connecting to your payment account. This proccess may take a while.
+              Sit back and relax. We are pre-ordering your food.
             </p>
+          </div>
+        </ModalBody>
+      </Modal>
+    )
+  }
+
+  renderFailedModal() {
+
+    const defaultOptions = {
+      loop: true,
+      autoplay: true, 
+      animationData: require('../../assets/animation/failed.json'),
+      rendererSettings: {
+        preserveAspectRatio: 'xMidYMid slice'
+      }
+    };
+
+    return (
+      <Modal    
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+        isOpen={this.state.failedModal} >
+        <ModalBody>
+          <div>
+            <Lottie 
+              options={defaultOptions}
+              height={200}
+              width={200}/>
+
+            <p style={{textAlign: 'center', paddingLeft:20, paddingRight:20, fontSize: 16, fontWeight: '600'}}>
+              An error has occured. No money is charged from your bank. Please try again later or contact our support team at support@foodiebee.eu
+            </p>
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <Button onClick={() => this.dismissFailedModal()} color="primary">OK</Button>
+        </ModalFooter>
+      </Modal>
+    )
+  }
+
+  renderSuccessModal() {
+
+    const defaultOptions = {
+      loop: true,
+      autoplay: true, 
+      animationData: require('../../assets/animation/success.json'),
+      rendererSettings: {
+        preserveAspectRatio: 'xMidYMid slice'
+      }
+    };
+
+    return (
+      <Modal    
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+        isOpen={this.state.successModal} >
+        <ModalBody>
+          <div>
+            <Lottie 
+              options={defaultOptions}
+              height={200}
+              width={200}/>
+
+            <p style={{textAlign: 'center', paddingLeft:20, paddingRight:20, fontSize: 16, fontWeight: '600'}}>
+              Meal pre-ordered! Just go to Orders section in your profile and show the respective order to the restaurant at your pickup time.
+            </p>
+
+            <div style={{textAlign: 'center', marginTop: 20, marginBottom: 15}}>
+              <Button block color="success" onClick={() => this.goToOrders()} style={{ fontWeight: '600', fontSize: 17, padding: 10 }} >
+                Go To Orders
+              </Button>
+            </div>
+
+          </div>
+        </ModalBody>
+      </Modal>
+    )
+  }
+
+  renderLimitModal() {
+
+    const defaultOptions = {
+      loop: true,
+      autoplay: true, 
+      animationData: require('../../assets/animation/lock.json'),
+      rendererSettings: {
+        preserveAspectRatio: 'xMidYMid slice'
+      }
+    };
+
+    return (
+      <Modal    
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+        toggle={() => this.toggleLimitModal()}
+        isOpen={this.state.limitModal} >
+        <ModalBody>
+          <div>
+            <Lottie 
+              options={defaultOptions}
+              height={200}
+              width={200}/>
+
+            <p style={{textAlign: 'center', paddingLeft:20, paddingRight:20, fontSize: 16, fontWeight: '600'}}>
+              You have reached quota of 1 order per day. 
+            </p>
+
+            <div style={{textAlign: 'center', marginTop: 20, marginBottom: 15}}>
+              <Button block color="success" onClick={() => this.toggleLimitModal()} style={{ fontWeight: '600', fontSize: 17, padding: 10 }} >
+                OK, Got It
+              </Button>
+            </div>
+
           </div>
         </ModalBody>
       </Modal>
@@ -834,10 +1207,11 @@ class SearchLunchChild extends Component {
 
           <Table borderless style={{ marginLeft: 10, marginRight: 10, marginTop: 20}}>
             <tbody>
+              {this.state.subscriptionID === "" ?
               <tr>
                 <td><img style={ { objectFit:'cover', marginTop:5, width: 25, height: 25 }} src={'/static/checked.png'} alt=""/></td>
                 <td style={{fontSize: 16}}><p style={{fontWeight: '500', opacity: 0.8}}>Free trial for 1 month. Cancel anytime</p></td>
-              </tr>
+              </tr> : null }
               <tr>
                 <td><img style={ { objectFit:'cover', marginTop:5, width: 25, height: 25 }} src={'/static/checked.png'} alt=""/></td>
                 <td style={{fontSize: 16}}><p style={{fontWeight: '500', opacity: 0.8}}>€6 and €10 meals daily</p></td>
@@ -850,11 +1224,11 @@ class SearchLunchChild extends Component {
           </Table>
 
           <div style={{textAlign: 'center', color: 'white',}}>
-            <Button  style={{fontSize: 18, height: 50, marginTop: 10, marginBottom: 30,}} className="bg-primary" size="lg" color="primary">Start Free Trial</Button>
+            <Button  style={{fontSize: 18, height: 50, marginTop: 10, marginBottom: 30,}} className="bg-primary" size="lg" color="primary" onClick={() => this.state.customerEmail === "" ? this.goToLogin() : Router.push('/userprofile/Go%20Prime')}>{this.state.subscriptionID === "" ? "Start Free Trial" : "Subscribe Now"}</Button>
           </div>
 
           <div style={{textAlign: 'center',marginBottom: 20}}>
-            <p style={{fontSize: 16, fontWeight: '600'}}>€4.99 / month after free trial. Cancel anytime. </p>
+            <p style={{fontSize: 16, fontWeight: '600'}}>Only <b style={{fontSize: 20, color: "#FF5722", fontWeight: '700' }}>€4.99</b> / month after free trial. Cancel anytime. </p>
           </div>
 
         </ModalBody>
@@ -877,8 +1251,7 @@ class SearchLunchChild extends Component {
           </Button>
 
           <img
-            style={{cursor:'pointer', marginTop:10, marginBottom: 10, objectFit: "cover", width: "100%", height: 200 }}
-            onClick={() => this.inputOpenFileRef.current.click()}
+            style={{ marginTop:10, marginBottom: 10, objectFit: "cover", width: "100%", height: 200 }}
             src={activeMenu.src ? activeMenu.src : img.food_blackwhite}
           /> 
 
@@ -915,24 +1288,64 @@ class SearchLunchChild extends Component {
           {typeof activeMenu.markitem === 'undefined' || activeMenu.markitem.length === 0 ? null : this.renderIcon(activeMenu.markitem)} 
 
           <Row>
+          
+            {!this.state.customerIsPrime ? 
+             <div style={{height: 1, width: '100%', marginLeft:20, marginRight: 20, backgroundColor: 'black', opacity: 0.1, marginTop: 20}}></div>
+              : null }
 
-            <Col style={{marginTop: 10, }} xs="12">
-              <Button style={{borderColor: "#FF5722", borderWidth: 1, backgroundColor: "white"}} onClick={this.togglePrimeModal}>
-                <b style={{fontSize: 16, fontWeight: '700', color: "#FF5722",marginTop: 12,}}>Get it for €{activeMenu.category === "lite" ? "6" : "10"} with 
-                  <Button style={{cursor: "pointer", marginLeft: 10, opacity: 1.0, padding: 5, fontWeight: '600', fontSize: 12,borderWidth: 0, backgroundColor: "#FF5722", color: "white" }} disabled>PRIME</Button>          
-                </b>
-              </Button>
+            {!this.state.customerIsPrime ? 
+            <Col xs="12">
+              <Table style={{margin: 0, padding: 0, }} borderless>
+                <tbody>
+                  <tr>
+                    <td onClick={this.togglePrimeModal} style={{cursor: "pointer", textAlign: 'start', paddingBottom: 0}}>
+                      <b style={{fontSize: 16, fontWeight: '700', color: "#FF5722",marginTop: 12,}}>Get it for €{activeMenu.discountedprice} with 
+                      <Button style={{cursor: "pointer", marginLeft: 10, opacity: 1.0, padding: 5, fontWeight: '600', fontSize: 12,borderWidth: 0, backgroundColor: "#FF5722", color: "white" }} onClick={this.togglePrimeModal}>PRIME</Button>          
+                      </b>
+                      <p style={{fontSize: 14, fontWeight: '600', color: "#FF5722", }}>You saved €{this.getSaveAmount(activeMenu.priceperunit, activeMenu.discountedprice)}!</p>
+                    </td>
+                    <td onClick={this.togglePrimeModal} style={{cursor: "pointer", textAlign: 'end', paddingBottom: 0}}><img style={{ marginTop: 13, objectFit:'cover', width: 20, height: 20, }} src={img.dropright_orange}/></td>
+                  </tr>
+                </tbody>
+              </Table>
+            </Col> : null }
+
+            {!this.state.customerIsPrime ? 
+            <div style={{height: 1, width: '100%', marginLeft:20, marginRight: 20, opacity: 0.1, backgroundColor: 'black', marginBottom: 10}}></div>
+            : null }
+
+            {this.state.customerIsPrime ? 
+            <Col style={{marginTop: 15,}} xs="12">              
+              <p style={{fontSize: 15, fontWeight: '600', color: "#FF5722", }}>You saved €{this.getSaveAmount(activeMenu.priceperunit, activeMenu.discountedprice)} with 
+                <Button style={{marginLeft: 10, opacity: 1.0, padding: 5, fontWeight: '600', fontSize: 12,borderWidth: 0, backgroundColor: "#FF5722", color: "white" }} disabled>PRIME</Button>          
+              </p>
+            </Col> : null }
+
+            <Col style={{marginTop: 15,}} xs="4" md="4">
+              <FormGroup>
+                <Input value={this.state.selectedPickUpTime} onChange={(e) => this.handlePickUpChange(e)} style={{color:'black', fontSize: 14, fontWeight: '600', letterSpacing: 1}} type="select" placeholder="Select Pick Up Time" autoComplete="pickuptime">
+                <option value="" disabled> Pickup Time</option>
+                {this.time.map(time =>
+                  <option style={{color:'black'}} key={time} value={time}>{time}</option>
+                )}
+                </Input>
+              </FormGroup>
             </Col>
 
-           
-
-            <Col style={{marginTop: 15,}} xs="6">
-              <b style={{fontSize: 19, fontWeight: '600',}}>€{Number(activeMenu.priceperunit).toFixed(2)}</b>
-            </Col>
-
-            <Col style={{textAlign:'end', marginTop: 15,}} xs="6">
-              <Button style={{fontSize: 17, padding: 10}} onClick={() => this.togglePaymentCardModal()} color="primary" disabled>
-                Pre-Order
+            <Col style={{marginTop: 15,}} xs="8" md="8">
+              <Button block style={{paddingTop: 0,}} onClick={() => this.state.customerEmail === "" ? this.goToLogin() : this.state.customerHasOrderedToday ? this.toggleLimitModal() : this.state.customerPaymentAccountID === "" ? this.togglePaymentCardModal() : this.getCustomerCard()} color="primary" disabled={this.state.isMenuExpired ? true : this.state.selectedPickUpTime === "" ? true : false}>
+                <Table style={{margin: 0, padding: 0, }} borderless>
+                  <tbody>
+                    <tr>
+                      <td style={{textAlign: 'start', paddingBottom: 0, paddingTop: 5,}}>
+                        <b style={{fontSize: 17, fontWeight: '600', color: "white", letterSpacing: 1}}>Pre-Order</b>
+                      </td>
+                      <td style={{textAlign: 'end', paddingBottom: 0, paddingTop: 5,}}>
+                        <b style={{fontSize: 16, fontWeight: '600', color: "white", letterSpacing: 1}}>€{Number(this.state.customerIsPrime ? activeMenu.discountedprice : activeMenu.priceperunit).toFixed(2)}</b>
+                      </td>
+                    </tr>
+                  </tbody>
+                </Table>
               </Button>
             </Col>  
           </Row>
@@ -980,7 +1393,7 @@ class SearchLunchChild extends Component {
 
       itemsarray.push(
         <Col key={i} xs="12" sm="6" md="6" lg="4" style={{}}>
-          <Card className="card-1" onMouseEnter={() => this.hoverItem(i)} onMouseLeave={() => this.unhoverItem(i)} onClick={() => this.menuItemClicked(i)} style={{ cursor: "pointer" }}>
+          <Card className="card-1" onMouseEnter={() => this.hoverItem(i)} onMouseLeave={() => this.unhoverItem(i)} onClick={() => this.menuItemClicked(i)} style={{ cursor: "pointer", }}>
             <CardBody
               style={{
                 cursor: "pointer",
@@ -995,7 +1408,7 @@ class SearchLunchChild extends Component {
              
               <Col style={{padding:0}} xs="12">
                 <div style={{ objectFit:'cover', width: 'auto', height: 150, }}>
-                  <img style={{ objectFit:'cover', width: '100%', height: '100%', }} src={item.src ? item.src : img.food_blackwhite}/>
+                  <img style={{ objectFit:'cover', width: '100%', height: '100%', opacity: (this.state.isMenuExpired && this.state.activeIndex === i) ? 1 : (this.state.isMenuExpired && this.state.activeIndex !== i) ? 0.3 : 1  }} src={item.src ? item.src : img.food_blackwhite}/>
                 </div>
               </Col>
 
@@ -1095,10 +1508,10 @@ class SearchLunchChild extends Component {
 
   renderTopSearchBar() {
     
-    const searchList = this.state.companyList.map(({ _id, companyName, companyAddress }) => {
+    const searchList = this.state.companyList.map(({ _id, companyName, companyFullAddress }) => {
       return {
         value: _id,
-        label: _id === 0 ? companyName + companyAddress : companyName + " | " + companyAddress
+        label: _id === 0 ? companyName + companyFullAddress : companyName + " | " + companyFullAddress
       };
     });
 
@@ -1210,7 +1623,7 @@ class SearchLunchChild extends Component {
           </Col>
 
           <Col style={{ marginTop: 10, textAlign: 'center', marginBottom:20 }} xs="12">
-            <h5 style={{paddingLeft:20, paddingRight:20, opacity: 0.8}} >Tommorow lunch menus will be available at 5pm today until 10:30am tommorow.</h5>
+            <h5 style={{paddingLeft:20, paddingRight:20, opacity: 0.8}} >Tommorow lunch menus will be available at 5pm today until 11am tommorow.</h5>
           </Col>
 
           <Col style={{ marginTop: 20 }} xs="12">
@@ -1241,7 +1654,7 @@ class SearchLunchChild extends Component {
 
         {this.state.isMobile && this.state.isMapView ?
         <div style={{ marginTop: 10, textAlign: 'center', marginBottom:20 }}>
-          <h5 style={{paddingLeft:20, paddingRight:20, opacity: 0.8}} >Tommorow lunch menus will be available at 5pm today until 10:30am tommorow.</h5>
+          <h5 style={{paddingLeft:20, paddingRight:20, opacity: 0.8}} >Tommorow lunch menus will be available at 5pm today until 11am tommorow.</h5>
         </div> : null}
 
         <GoogleMapReact
@@ -1304,28 +1717,16 @@ class SearchLunchChild extends Component {
 
       {this.renderLoadingModal()}
 
+      {this.renderFailedModal()}
+
+      {this.renderSuccessModal()}
+
+      {this.renderLimitModal()}
+
       <Footer />
       </div>
     );
   }
 }
-
-const SuccessInfo = ({ closeToast }) => (
-  <div>
-    <img style={ { marginLeft:10, objectFit:'cover', width: 25, height: 25 }} src={"https://foodiebeegeneralphoto.s3-eu-west-1.amazonaws.com/checked.png"} />
-
-     <b style={{marginLeft:10, marginTop:5, color: 'green'}}>Successfully Ordered!</b>
-   
-  </div>
-)
-
-const ErrorInfo = ({ closeToast }) => (
-  <div>
-    <img style={ { marginLeft:10, objectFit:'cover', width: 25, height: 25 }} src={"https://foodiebeegeneralphoto.s3-eu-west-1.amazonaws.com/cancel.png"} />
-
-     <b style={{marginLeft:10, marginTop:5, color: 'red'}}>Error ordering item.</b>
-   
-  </div>
-)
 
 export default injectStripe(SearchLunchChild)
