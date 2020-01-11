@@ -220,7 +220,7 @@ class Register extends Component {
       var body = {
         customerFirstName: customerFirstName,
         customerLastName: customerLastName,
-        customerEmail: customerEmail,
+        customerEmail: customerEmail.toLowerCase(),
         customerPhoneNumber: customerPhoneNumber,
         customerPassword: customerPassword,
         customerCountry: "Ireland",

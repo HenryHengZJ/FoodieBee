@@ -544,7 +544,11 @@ class GoPrime extends Component {
               </tr> : null }
               <tr>
                 <td style={{textAlign: 'end'}}><img style={ { objectFit:'cover', marginTop:5, width: 25, height: 25 }} src={img.checked} alt=""/></td>
-                <td style={{fontSize: 17, textAlign: 'start'}}><p style={{fontWeight: '500', opacity: 0.8}}>€6 and €10 meals daily</p></td>
+                <td style={{fontSize: 17, textAlign: 'start'}}><p style={{fontWeight: '500', opacity: 0.8}}>Unbeatable prices of just €6 and €10 meals daily</p></td>
+              </tr>
+              <tr>
+                <td style={{textAlign: 'end'}}><img style={ { objectFit:'cover', marginTop:5, width: 25, height: 25 }} src={img.checked} alt=""/></td>
+                <td style={{fontSize: 17, textAlign: 'start'}}><p style={{fontWeight: '500', opacity: 0.8}}>No more waiting line. Skip the queue and pick up your food</p></td>
               </tr>
               <tr>
                 <td style={{textAlign: 'end'}}><img style={ { objectFit:'cover', marginTop:5, width: 25, height: 25 }} src={img.checked} alt=""/></td>

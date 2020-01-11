@@ -6,16 +6,14 @@ var Caterer = require('../../models/caterer');
 var ObjectId = require('mongodb').ObjectID;
 var passport = require('passport');
 var moment = require('moment');
-var twiliocall = require('../../twilioAction')
-const VoiceResponse = require('twilio').twiml.VoiceResponse;
-var mail = require('../../nodeMailerWithTemp');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-
-router.post('/addlunchorder', passport.authenticate('jwt', {session: false}), (req, res) => {
+router.post('/addlunchorder', authenticate(), (req, res) => {
 	
-	const { user } = req;
+    const { user, jwttoken } = req;
     var userID = user.customerID
+    var token = jwttoken
 
     // create the new menu
     var newData = req.body
@@ -65,7 +63,10 @@ router.post('/addlunchorder', passport.authenticate('jwt', {session: false}), (r
 							return res.status(500).send({ error: err });
 						}
 						else {
-							return res.status(200).json(doc)
+							if (typeof token !== 'undefined') {
+                                res.cookie('jwt', token, { httpOnly: true,});
+                            }
+                            res.status(200).header('x-auth', token).json(doc)
 						}
 					});
 				}
@@ -75,10 +76,12 @@ router.post('/addlunchorder', passport.authenticate('jwt', {session: false}), (r
 });
 
 
-router.get('/getlunchorder', passport.authenticate('jwt', {session: false}),  (req, res) => {
+router.get('/getlunchorder', authenticate(),  (req, res) => {
 
-    const { user } = req;
+    const { user, jwttoken } = req;
     var userID = user.customerID
+    var token = jwttoken
+    console.log('getlunchorder = ', user)
 
     var matchquery =  {};
     matchquery.customerID = new ObjectId(userID)
@@ -87,6 +90,10 @@ router.get('/getlunchorder', passport.authenticate('jwt', {session: false}),  (r
 		var gteDate = moment(req.query.gteDate, 'ddd, DD MMM YYYY').toDate()
 		var lteDate = moment(req.query.lteDate, 'ddd, DD MMM YYYY').add(1, 'days').toDate()
         matchquery.createdAt = {$gte: new Date(gteDate.toISOString()),$lte: new Date(lteDate.toISOString())}
+    }
+
+    if (typeof req.query._id !== 'undefined') {
+        matchquery._id = new ObjectId(req.query._id)
     }
 	
     /*LunchOrder.find(matchquery).sort({createdAt: -1}).exec((err,doc) => {
@@ -110,15 +117,23 @@ router.get('/getlunchorder', passport.authenticate('jwt', {session: false}),  (r
         },
         { $sort : { createdAt : -1 } }
       ], (err,doc) => {
-         if (err) return res.status(500).send({ error: err });
-         return res.status(200).json(doc);
+         if (err) {
+             return res.status(500).send({ error: err });
+         }
+         else {
+            if (typeof token !== 'undefined') {
+                res.cookie('jwt', token, { httpOnly: true,});
+            }
+            res.status(200).header('x-auth', token).json(doc);
+         }
       });
 });
 
-router.put('/updatelunchorder', passport.authenticate('jwt', {session: false}), (req, res) => {
+router.put('/updatelunchorder', authenticate(), (req, res) => {
 
-    const { user } = req;
+    const { user, jwttoken } = req;
     var userID = user.customerID
+    var token = jwttoken
 
     var matchquery;
     matchquery = {customerID: new ObjectId(userID)}
@@ -146,9 +161,93 @@ router.put('/updatelunchorder', passport.authenticate('jwt', {session: false}), 
         }
         else {
             console.log(doc)
-            res.status(201).json(doc);
+            if (typeof token !== 'undefined') {
+                res.cookie('jwt', token, { httpOnly: true,});
+            }
+            res.status(201).header('x-auth', token).json(doc);
         }
     });
 });
+
+function authenticate() {
+    return (req, res, next) => {
+      passport.authenticate('jwt', {session: false}, (err, user, info) => {
+        if (err) {
+            console.log( 'err = ', err)
+            next(err);
+        } 
+        else if (info) {
+           // next(info);
+            if (info.name === 'TokenExpiredError') {
+
+                var myDate = new Date();
+                myDate.setHours(myDate.getHours() + 24);
+
+                if (req && req.headers.authorization && req.headers.authorization.split(" ")[0] === 'Bearer' && req.headers.authorization.split(" ")[2] === 'Refresh') {
+                    const refresh_token = req.headers.authorization.split(" ")[3]
+                    console.log('refresh_token =', refresh_token)
+
+                    const jwttoken = req.headers.authorization.split(" ")[1]
+                    var decoded = jwt.decode(jwttoken, {complete: true});
+                    var decodedPayload = decoded.payload
+
+                    if (decodedPayload.refreshToken === refresh_token) {
+                        const payload = {
+                            customerID: decodedPayload.customerID,
+                            customerName: decodedPayload.customerName,
+                            customerEmail: decodedPayload.customerEmail,
+                            refreshToken: decodedPayload.refreshToken,
+                            expires: myDate, 
+                        };
+                        const token = jwt.sign(payload, process.env.jwtSecretKey, {expiresIn: '2m'} );
+                        req.user = payload;
+                        req.jwttoken = token
+                        next();
+                    }
+                    else {
+                        res.status(401).send('Unauthorized');
+                    }
+                }
+                else if (req && req.cookies['jwt'] && req.cookies['refreshToken']) {
+                    const refresh_token = req.cookies['refreshToken']
+                    console.log('refresh_token =', refresh_token)
+
+                    const jwttoken = req.cookies['jwt']
+                    var decoded = jwt.decode(jwttoken, {complete: true});
+                    var decodedPayload = decoded.payload
+
+                    if (decodedPayload.refreshToken === refresh_token) {
+                        const payload = {
+                            customerID: decodedPayload.customerID,
+                            customerName: decodedPayload.customerName,
+                            customerEmail: decodedPayload.customerEmail,
+                            refreshToken: decodedPayload.refreshToken,
+                            expires: myDate, 
+                        };
+                        const token = jwt.sign(payload, process.env.jwtSecretKey, {expiresIn: '2m'} );
+                        req.user = payload;
+                        req.jwttoken = token
+                        next();
+                    }
+                    else {
+                        res.status(401).send('Unauthorized');
+                    }
+                }
+                else {
+                    res.status(401).send('Unauthorized');
+                }
+            }
+            else {
+                res.status(401).send('Unauthorized');
+            }
+        } 
+        else {
+            console.log(user)
+            req.user = user;
+            next();
+        }
+      })(req, res, next);
+    };
+  }
 
 module.exports = router;

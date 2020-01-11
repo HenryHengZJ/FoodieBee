@@ -331,28 +331,67 @@ class SearchLunchChild extends Component {
   };
   
   checkIfMenuExpired = () => {
+
+    var activeDayIndex = new Date().getDay();
+        
     var timenow = parseInt(moment(new Date()).format("HHmm"));
-   
-    if (timenow > 1100 && timenow < 1700) {
-      this.setState({
-        isMenuExpired: true
-      })
+    
+    if (activeDayIndex === 0 || activeDayIndex === 6 || activeDayIndex === 7 ) {
+        var currentDateString = null
+
+        var numofDaysToAdd = (activeDayIndex === 0 || activeDayIndex === 7) ? 1 : activeDayIndex === 6 ? 2 : 0
+        
+        currentDateString = moment().add(numofDaysToAdd, 'days').format("ddd, DD MMM YYYY")
+
+        this.setState({
+            isMenuExpired: false,
+            currentDateString
+        })
+    }
+    else if (activeDayIndex === 5) {
+        if (timenow > 1100 && timenow < 1700) {
+            this.setState({
+              isMenuExpired: true
+            })
+        }
+          else {
+            var currentDateString = null
+      
+            if (timenow >= 1700) {
+              currentDateString = moment().add(3, 'days').format("ddd, DD MMM YYYY")
+            }
+            else {
+              currentDateString = moment().format("ddd, DD MMM YYYY")
+            }
+      
+            this.setState({
+              isMenuExpired: false,
+              currentDateString
+            })
+        }
     }
     else {
-      var currentDateString = null
-
-      if (timenow >= 1700) {
-        currentDateString = moment().add(1, 'days').format("ddd, DD MMM YYYY")
-      }
-      else {
-        currentDateString = moment().format("ddd, DD MMM YYYY")
-      }
-
-      this.setState({
-        isMenuExpired: false,
-        currentDateString
-      })
-    }
+        if (timenow > 1100 && timenow < 1700) {
+            this.setState({
+              isMenuExpired: true
+            })
+        }
+          else {
+            var currentDateString = null
+      
+            if (timenow >= 1700) {
+              currentDateString = moment().add(1, 'days').format("ddd, DD MMM YYYY")
+            }
+            else {
+              currentDateString = moment().format("ddd, DD MMM YYYY")
+            }
+      
+            this.setState({
+              isMenuExpired: false,
+              currentDateString
+            })
+        }
+    }    
   }
 
   checkIfUserHasMadeOrderToday = () => {
@@ -569,7 +608,24 @@ class SearchLunchChild extends Component {
   }
 
   openMaps = (lat, lng) => {
-    window.open("https://maps.google.com?q=" + lat + "," + lng);
+    if( navigator.geolocation )
+    {
+        // Call getCurrentPosition with success and failure callbacks
+        navigator.geolocation.getCurrentPosition((position) => {
+          const user_lat = position.coords.latitude
+          const user_lng = position.coords.longitude
+          const url = `https://www.google.com/maps/dir/?api=1&origin=${user_lat},${user_lng}&destination=${lat},${lng}`
+          window.open(url);
+        },
+        (error) => {
+          window.open("https://maps.google.com?q=" + lat + "," + lng);
+        },
+        { enableHighAccuracy: false, timeout: 20000, maximumAge: 1000 },
+      );
+    }
+    else {
+      window.open("https://maps.google.com?q=" + lat + "," + lng);
+    }
   };
 
   getSaveAmount = (priceperunit, discountedprice) => {
@@ -866,36 +922,6 @@ class SearchLunchChild extends Component {
       netOrderPrice = parseFloat(this.state.activeMenu.priceperunit) * 0.90
     }
     return netOrderPrice.toFixed(2);
-  }
-
-  renderMarkAsIcon(markitem) {
-    var iconarray = [];
-    for (let i = 0; i < markitem.length; i++) {
-      iconarray.push(
-        <img
-          key={i} 
-          style={{
-            marginLeft: i === 0 ? 0 : 5,
-            marginBottom: 5,
-            height: 20,
-            width: 20,
-            objectFit: "cover"
-          }}
-          src={this.findIcon(markitem[i])}
-          alt=""
-        />
-      );
-    }
-    return (
-      <Col
-        style={{
-          textAlign: "start",
-          flex: 1
-        }}
-      >
-        {iconarray}
-      </Col>
-    );
   }
 
   renderIcon(markitem) {
@@ -1623,7 +1649,7 @@ class SearchLunchChild extends Component {
           </Col>
 
           <Col style={{ marginTop: 10, textAlign: 'center', marginBottom:20 }} xs="12">
-            <h5 style={{paddingLeft:20, paddingRight:20, opacity: 0.8}} >Tommorow lunch menus will be available at 5pm today until 11am tommorow.</h5>
+            <h5 style={{paddingLeft:20, paddingRight:20, opacity: 0.8}} >Tomorrow lunch menus will be available at 5pm today until 11am tomorrow.</h5>
           </Col>
 
           <Col style={{ marginTop: 20 }} xs="12">
@@ -1654,7 +1680,7 @@ class SearchLunchChild extends Component {
 
         {this.state.isMobile && this.state.isMapView ?
         <div style={{ marginTop: 10, textAlign: 'center', marginBottom:20 }}>
-          <h5 style={{paddingLeft:20, paddingRight:20, opacity: 0.8}} >Tommorow lunch menus will be available at 5pm today until 11am tommorow.</h5>
+          <h5 style={{paddingLeft:20, paddingRight:20, opacity: 0.8}} >Tomorrow lunch menus will be available at 5pm today until 11am tomorrow.</h5>
         </div> : null}
 
         <GoogleMapReact

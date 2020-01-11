@@ -52,6 +52,8 @@ class Review extends Component {
   constructor(props) {
     super(props);
 
+    this.changeRating = this.changeRating.bind(this)
+
     this.state = {
       empty: false,
       maxDate: null,
@@ -70,6 +72,10 @@ class Review extends Component {
       dateRange: '',
       dateArray: [],
       tableitems: [],
+      selectedReviewItem: null,
+      reviewComment: "",
+      rating: 0,
+      reviewModalOpen: false,
     };
   }
 
@@ -113,7 +119,7 @@ class Review extends Component {
       'Content-Type': 'application/json',
     }
 
-    var url = apis.GETreview + "?lteDate=" + currentDateString + "&gteDate=" + previousDateString;
+    var url = apis.GETreview;
 
     axios.get(url, {withCredentials: true}, {headers: headers})
       .then((response) => {
@@ -132,6 +138,59 @@ class Review extends Component {
           empty: true 
         })
       });
+  }
+
+  postReview = () => {
+
+    const { selectedReviewItem, reviewComment, rating } = this.state;
+
+    if (rating === 0) {
+      return
+    }
+    var data = {
+      customerComment: reviewComment,
+      catererID: selectedReviewItem.catererDetails[0]._id,
+      customerRating: rating
+    }
+
+    var headers = {
+      'Content-Type': 'application/json',
+    }
+
+    var url = ""
+    var execquery = null
+
+    if (selectedReviewItem._id !== "") {
+      url = apis.UPDATEreview + "?_id=" + selectedReviewItem._id
+      execquery = axios.put(url, data, {withCredentials: true}, {headers: headers})
+    }
+    else {
+      url = apis.POSTreview
+      execquery = axios.post(url, data, {withCredentials: true}, {headers: headers})
+    }
+
+    execquery.then((response) => {
+        if (response.status === 200 || response.status === 201) {
+          this.setState({
+            reviewModalOpen: false,
+            reviewComment: "",
+            rating: 0,
+          }, () => {
+            this.getReview("", "")
+          })
+        } 
+      })
+      .catch((error) => {
+        if (error) {
+          this.setState({
+            reviewModalOpen: false,
+            reviewComment: "",
+            rating: 0,
+          }, () => {
+            this.getReview("", "")
+          })
+        } 
+      }); 
   }
 
   toggleDropDown = () => {
@@ -162,6 +221,73 @@ class Review extends Component {
       sessionStorage.setItem('previousReviewDateString', startDate)
       this.getReview(endDate, startDate)
     })
+  }
+
+  toggleReviewModal = () => {
+    this.setState({
+      reviewModalOpen: !this.state.reviewModalOpen,
+      reviewComment: "",
+      rating: 0,
+    })
+  }
+
+  changeRating( newRating, name ) {
+    this.setState({
+      rating: newRating
+    });
+  }
+
+  handleReviewComment = (e) => {
+    this.setState({ 
+      reviewComment: e.target.value
+    })
+  }
+
+  renderReviewModal() {
+    const { selectedReviewItem } = this.state
+    return (
+      <Modal    
+        toggle={() => this.toggleReviewModal()}
+        isOpen={this.state.reviewModalOpen} >
+        <ModalHeader toggle={() => this.toggleReviewModal()}>
+          Leave a Review
+        </ModalHeader>
+        <ModalBody style={{paddingTop: 0, marginTop: 0, paddingLeft: 0, paddingRight: 0}}>
+
+          <div style={{ width: 80, height: 80, position: 'relative', margin: 'auto', overflow: 'hidden', borderRadius: '50%'}}>
+            <img alt="" style={{ objectFit:'cover', width: '100%', height: '100%', display: 'inline' }} src={selectedReviewItem.catererDetails[0].profilesrc}/>
+          </div>
+
+          <div style={{textAlign: 'center', marginBottom: 10}}>
+            <b>{selectedReviewItem.catererDetails[0].catererName}</b>
+          </div>
+
+          <div style={{textAlign: 'center', marginBottom: 10}}>
+            <StarRatings
+              rating={this.state.rating === 0 ? selectedReviewItem.customerRating : this.state.rating }
+              starRatedColor="orange"
+              changeRating={this.changeRating}
+              numberOfStars={5}
+              name='rating'
+            />
+          </div>
+
+          <div style={{ margin: 20}}>
+            <Input style={{color: 'black', height: 100}} value={this.state.reviewComment === "" ? selectedReviewItem.customerComment : this.state.reviewComment } onChange={(e) => this.handleReviewComment(e)} type="textarea" placeholder="More details of your experience" />
+          </div>
+
+          <div style={{textAlign: 'center', margin: 20}}>
+            <Button block style={{fontSize: 18, height: 50, marginTop: 10, marginBottom: 10,}} className="bg-primary" color="primary" onClick={()=> this.postReview()}>Post</Button>
+          </div>
+          <div style={{textAlign: 'center', }}>
+            <Button block color="link" onClick={() => this.toggleReviewModal()} style={{ fontSize: 18,  fontWeight: '500',color: "#20a8d8" }} >
+              <p style={{padding: 0, marginTop: 10}}>Later</p>
+            </Button>
+          </div>
+          
+        </ModalBody>
+      </Modal>
+    )
   }
 
   renderDateAction() {
@@ -197,7 +323,7 @@ class Review extends Component {
 
     for (let i = 0; i < tableitems.length; i++) {
       itemarray.push(
-        <tr>
+        <tr style={{cursor: 'pointer'}} onClick={()=> this.setState({selectedReviewItem: tableitems[i]}, () => {this.toggleReviewModal()})}>
           <td style={{width: '10%'}}>{tableitems[i].catererDetails[0].catererName}</td>
           <td style={{width: '15%'}}>
             <StarRatings
@@ -285,38 +411,10 @@ class Review extends Component {
               <div class="table-wrapper-scroll-y my-custom-scrollbar">
                 {this.renderReviewTable()}
               </div>
-              <UncontrolledDropdown style={{marginTop: 10}} isOpen={this.state.dropDownDate}  toggle={() => this.toggleDropDown()}>
-                <DropdownToggle
-                  style={{
-                    color: "#fff",
-                    borderColor: "#fff",
-                    backgroundColor: "#20a8d8"
-                  }}
-                  caret
-                >
-                  {this.state.dateRange}
-                </DropdownToggle>
-                <DropdownMenu>
-                  <div >
-                    <DateRange
-                        onChange={this.handleRangeChange.bind(this, 'dateRangePicker')}
-                        showSelectionPreview={true}
-                        moveRangeOnFirstSelection={false}
-                        className={'PreviewArea'}
-                        months={1}
-                        ranges={[this.state.dateRangePicker.selection]}
-                        direction="horizontal"
-                        maxDate={this.state.maxDate}
-                    />
-                  </div>
-                    <div className="float-right">
-                    {this.renderDateAction()}     
-                    </div>
-                </DropdownMenu>
-              </UncontrolledDropdown>
             </CardBody>
           </Card>
         </Col>
+        { this.state.selectedReviewItem !== null ? this.renderReviewModal() : null}
       </Row>
     );
   }

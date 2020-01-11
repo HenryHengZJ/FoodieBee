@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var randtoken = require('rand-token') 
 const jwt = require('jsonwebtoken');
 var passport = require('passport');
 var Customer = require('../../models/customer');
@@ -106,11 +107,13 @@ router.post('/customerlogin', (req, res) => {
             var myDate = new Date();
             myDate.setHours(myDate.getHours() + 24);
             console.log(myDate)
+            var refreshToken = randtoken.uid(256) 
             const payload = {
                 customerID: user._id,
                 customerName: user.customerFirstName,
                 customerEmail: user.customerEmail,
-                expires: myDate,
+                refreshToken: refreshToken,
+                expires: myDate, 
             };
 
             /** assigns payload to req.user */
@@ -121,12 +124,15 @@ router.post('/customerlogin', (req, res) => {
                 }
                 else {
                     /** generate a signed json web token and return it in the response */
-                    const token = jwt.sign(payload, process.env.jwtSecretKey, {expiresIn: '24h'} );
+                    const token = jwt.sign(payload, process.env.jwtSecretKey, {expiresIn: '2m'} );
+
+                    console.log(token)
 
                     /** assign our jwt to the cookie */
-                    res.cookie('jwt', token, { httpOnly: true});
+                    res.cookie('jwt', token, { httpOnly: true,});
+                    res.cookie('refreshToken', refreshToken, { httpOnly: true,});
                     res.cookie('userName', user.customerFirstName);
-                    res.status(200).json(payload);
+                    res.status(200).header('x-auth', token).json(payload);
                 }
             });
         }
@@ -174,6 +180,7 @@ router.get('/getresetpassword', (req, res) => {
 router.get('/logout', (req, res) => {
     req.logout();
     res.clearCookie('userName')
+    res.clearCookie('refreshToken')
     res.status(200).clearCookie('jwt', {path: '/'}).json({message: "successfully logout"});
 });
 

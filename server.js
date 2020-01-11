@@ -48,7 +48,11 @@ nextApp.prepare().then(() => {
   // express code here
   // (optional) only made for logging and
   // bodyParser, parses the request body to be a readable json format
-  app.use(cors());
+  const corsOptions = {
+    exposedHeaders: ['x-auth', 'Authorization'], 
+    allowedHeaders: ['Authorization'], 
+  };
+  app.use(cors(corsOptions));
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
   app.use(logger("dev"));
@@ -151,6 +155,10 @@ nextApp.prepare().then(() => {
 
   app.get('/privacypolicy', (req,res) => {
     return nextApp.render(req, res, '/PrivacyPolicy')
+  })  
+
+  app.get('/mobileaddpayment', (req,res) => {
+    return nextApp.render(req, res, '/MobileAddPayment',  req.query )
   })  
 
   app.get('*', (req,res) => {

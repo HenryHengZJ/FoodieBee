@@ -39,7 +39,7 @@ class ContactInfo extends Component {
   }
 
   openEmail = () => {
-    window.location.href = `mailto:support@foodiebee.com`;
+    window.location.href = `mailto:support@foodiebee.eu`;
   };
 
   renderItems() {
@@ -94,7 +94,7 @@ class ContactInfo extends Component {
                     margin: 0
                   }}
                 >
-                  <p style={{ padding: 0, margin: 0 }}>support@foodiebee.com</p>
+                  <p style={{ padding: 0, margin: 0 }}>support@foodiebee.eu</p>
                 </Button>
               ) : null}
             </CardBody>

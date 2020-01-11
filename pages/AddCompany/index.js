@@ -40,8 +40,8 @@ class AddCompany extends Component {
       companyName: "",
       isCompanyNameEmpty: false,
       center: {
-        lat: 53.3498091,
-        lng: -6.2621753
+        lat: 53.3498053,
+        lng: -6.2603097
       },
       companyFullAddress: "",
       companyAddress: "",
@@ -51,6 +51,9 @@ class AddCompany extends Component {
       isCompanyAddressEmpty: false,
       isAddressButtonActive: false,
       userName: "",
+      isSearched: false,
+      zoom: 14,
+      isStreetAddressMissing: false,
     };
 
     this.handleCompanyName = this.handleCompanyName.bind(this);
@@ -172,37 +175,82 @@ class AddCompany extends Component {
       }); 
   }
 
-  showPlaceDetails(address) {
-    var lat = Number(address.geometry.location.lat())
-    var lng = Number(address.geometry.location.lng())
-    
+  showPlaceDetails(details) {
+
+    var lat = Number(details.geometry.location.lat())
+    var lng = Number(details.geometry.location.lng())
+
     Geocode.fromLatLng(lat, lng).then(
       response => {
 
-        //Get rid of postal code
-        for(var i = 0 ; i < response.results[0].address_components.length ; i++){
-          if (response.results[0].address_components[i].types[0] === "postal_code") {
-            response.results[0].address_components.splice(i, 1)
+        var results = response.results
+        var companyCountry = ""
+        var companyCounty = ""
+        var companyCity = ""
+        var companyAddress = ""
+        var companyFullAddress = ""
+  
+        for (var x = 0; x < results.length; x++) {
+        
+          //Check for country
+          if (results[x].types.includes('country')) {
+            companyCountry = results[x].address_components[0].long_name
           }
+          
+          //Check for county
+          if (results[x].types.includes('administrative_area_level_1')) {
+            companyCounty = results[x].address_components[0].long_name
+          }
+          
+          //Check for city
+          if (results[x].types.includes('locality')) {
+            companyCity = results[x].address_components[0].long_name
+          }
+
         }
 
-        var address_components = response.results[0].address_components
- 
-        var companyAddress = ""
-        for(var i = address_components.length - 4 ; i >= 0; i--){
-          companyAddress = address_components[i].long_name + ( i === address_components.length - 4 ? "" : ", " ) + companyAddress 
+        for (var i = 0; i < details.address_components.length; i++) {
+            
+              //Check for street_number
+              if (details.address_components[i].types.includes('street_number')) {
+                companyAddress = companyAddress + details.address_components[i].long_name + ", "
+              }
+              
+              //Check for route
+              if (details.address_components[i].types.includes('route')) {
+                companyAddress = companyAddress + details.address_components[i].long_name + ", "
+              }
+              
+              //Check for sublocality
+              if (details.address_components[i].types.includes('sublocality')) {
+                companyAddress = companyAddress + details.address_components[i].long_name + ", "
+              }
+            
+        }
+            
+        //Remove last 2 substrings of companyAddress
+        companyAddress = companyAddress.substring(0, companyAddress.length - 2);
+
+        companyFullAddress = details.formatted_address
+
+        var newCenter = {
+          lat: lat,
+          lng: lng,
         }
         
         this.setState({
-          center: {
-            lat: lat,
-            lng: lng,
-          },
-          companyFullAddress: response.results[0].formatted_address,
-          companyAddress: companyAddress,
-          companyCity: address_components[address_components.length - 3].long_name,
-          companyCounty: address_components[address_components.length - 2].long_name,
-          companyCountry: address_components[address_components.length - 1].long_name,
+          companyFullAddress,
+          companyAddress,
+          companyCity,
+          companyCounty,
+          companyCountry,
+          isSearched: true,
+          isStreetAddressMissing: companyAddress === "" ? true : false,
+        }, () => {
+          this.setState({
+            zoom: 16,
+            center: newCenter
+          })
         })
       },
       error => {
@@ -217,7 +265,19 @@ class AddCompany extends Component {
     })
   }
 
+  onDrag = (map) => {
+    if (this.state.isSearched) {
+      this.setState({
+        isSearched: false
+      })
+    }
+  }
+
   onMapChange = ({center}) => {
+
+    if (this.state.isSearched) {
+      return;
+    }
    
     var lat = center.lat;
     var lng = center.lng;
@@ -225,30 +285,79 @@ class AddCompany extends Component {
     Geocode.fromLatLng(lat, lng).then(
       response => {
 
-        //Get rid of postal code
-        for(var i = 0 ; i < response.results[0].address_components.length ; i++){
-          if (response.results[0].address_components[i].types[0] === "postal_code") {
-            response.results[0].address_components.splice(i, 1)
+        var results = response.results
+        var companyCountry = ""
+        var companyCounty = ""
+        var companyCity = ""
+        var companyAddress = ""
+        var companyFullAddress = ""
+        var isStreetAddressAppeared = false
+        
+        for (var x = 0; x < results.length; x++) {
+        
+          //Check for country
+          if (results[x].types.includes('country')) {
+            companyCountry = results[x].address_components[0].long_name
+          }
+          
+          //Check for county
+          if (results[x].types.includes('administrative_area_level_1')) {
+            companyCounty = results[x].address_components[0].long_name
+          }
+          
+          //Check for city
+          if (results[x].types.includes('locality')) {
+            companyCity = results[x].address_components[0].long_name
+          }
+          
+          //Check for street_address
+          if (results[x].types.includes('street_address') && !isStreetAddressAppeared) {
+            
+            var street_address_components = results[x].address_components
+
+            for (var i = 0; i < street_address_components.length; i++) {
+            
+              //Check for street_number
+              if (street_address_components[i].types.includes('street_number')) {
+                companyAddress = companyAddress + street_address_components[i].long_name + ", "
+              }
+              
+              //Check for route
+              if (street_address_components[i].types.includes('route')) {
+                companyAddress = companyAddress + street_address_components[i].long_name + ", "
+              }
+              
+              //Check for sublocality
+              if (street_address_components[i].types.includes('sublocality')) {
+                companyAddress = companyAddress + street_address_components[i].long_name + ", "
+              }
+            
+            }
+            
+            //Remove last 2 substrings of companyAddress
+            companyAddress = companyAddress.substring(0, companyAddress.length - 2);
+
+            companyFullAddress = results[x].formatted_address
+
+            //Set isStreetAddressAppeared to true to ensure only 1 address
+            isStreetAddressAppeared = true
+
           }
         }
 
-        var address_components = response.results[0].address_components
-
-        var companyAddress = ""
-        for(var i = address_components.length - 4 ; i >= 0; i--){
-          companyAddress = address_components[i].long_name + ( i === address_components.length - 4 ? "" : ", " ) + companyAddress 
+        var newCenter = {
+          lat: lat,
+          lng: lng,
         }
-        
+
         this.setState({
-          center: {
-            lat: lat,
-            lng: lng,
-          },
-          companyFullAddress: response.results[0].formatted_address,
-          companyAddress: companyAddress,
-          companyCity: address_components[address_components.length - 3].long_name,
-          companyCounty: address_components[address_components.length - 2].long_name,
-          companyCountry: address_components[address_components.length - 1].long_name,
+          center: newCenter,
+          companyFullAddress,
+          companyAddress,
+          companyCity,
+          companyCounty,
+          companyCountry,
+          isStreetAddressMissing: companyAddress === "" ? true : false,
         })
       },
       error => {
@@ -314,16 +423,22 @@ class AddCompany extends Component {
                           </InputGroup>
                           {this.state.isCompanyAddressEmpty ? 
                           <Label style={{fontSize: 11, color: 'red', opacity: 0.8}}>
-                            Please enter company name
+                            Please enter company address
+                          </Label> : null }
+                           {this.state.isStreetAddressMissing ? 
+                          <Label style={{fontSize: 11, color: 'red', opacity: 0.8}}>
+                            Please enter address with street name
                           </Label> : null }
                         </Col>
                       </FormGroup>
                       <div style={{ marginTop:25, height: '60vh', width: '100%' }}>
                         <GoogleMapReact
                           bootstrapURLKeys={{ key: [GOOGLE_API_KEY] }}
+                          defaultCenter={this.state.center}
                           center={this.state.center}
-                          zoom={14}
+                          zoom={this.state.zoom}
                           onChange={this.onMapChange}
+                          onDrag={this.onDrag}
                         >
                         </GoogleMapReact>
                         <div style={{position: 'absolute',top: '60%', left: '50%', zIndex: 1, height: 30, width: 30 }}>
@@ -340,6 +455,7 @@ class AddCompany extends Component {
                         }}
                         color="success"
                         block
+                        disabled={this.state.isStreetAddressMissing}
                         onClick={() => this.checkInput()}
                       >
                         {this.state.userName === "" ? "Next" : "Save Changes"}

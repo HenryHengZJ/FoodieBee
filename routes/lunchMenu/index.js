@@ -36,6 +36,8 @@ router.get('/get_lunchmenu',  (req, res) => {
                     restaurant_matchquery.catererCuisine = { $in: req.query.cuisine }
                 }
 
+                console.log(restaurant_matchquery)
+
                 Caterer.find(restaurant_matchquery, (restaurant_err, restaurant_doc) => {
                     if (restaurant_err) {
                         return res.status(500).send({ error: restaurant_err });
@@ -52,7 +54,18 @@ router.get('/get_lunchmenu',  (req, res) => {
                             var activeDayIndex = new Date().getDay();
                             var dayArry = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
                             var currentTime = parseInt(moment(new Date()).format("HHmm"));
-                            var activeDay = dayArry[currentTime >= 1700 ? activeDayIndex : activeDayIndex-1]
+                            var activeDay = ""
+                            if (activeDayIndex === 0 || activeDayIndex === 6 || activeDayIndex === 7 ) {
+                                activeDay = "Monday"
+                            }
+                            else if (activeDayIndex === 5) {
+                                activeDay = currentTime >= 1700 ? "Monday" : "Friday" 
+                            }
+                            else {
+                                activeDay = dayArry[currentTime >= 1700 ?  activeDayIndex : activeDayIndex-1]
+                            }
+                            console.log('activeDayIndex = ', activeDayIndex)
+                            console.log('activeDay = ', activeDay)
                             var lunchmenu_matchquery =  {selected: true, activeDay: activeDay, catererID: { $in: catererIDArry }};
 
                             if (typeof req.query.mealTitle !== 'undefined')
@@ -78,7 +91,7 @@ router.get('/get_lunchmenu',  (req, res) => {
                               });
                         }
                         else {
-                            return res.status(200).json(doc);
+                            return res.status(200).json(restaurant_doc);
                         }
                     }
                 })

@@ -104,8 +104,31 @@ class Order extends Component {
   }
 
   openMaps = (lat, lng) => {
-    window.open("https://maps.google.com?q=" + lat + "," + lng);
+    if( navigator.geolocation )
+    {
+        // Call getCurrentPosition with success and failure callbacks
+        navigator.geolocation.getCurrentPosition((position) => {
+          const user_lat = position.coords.latitude
+          const user_lng = position.coords.longitude
+          const url = `https://www.google.com/maps/dir/?api=1&origin=${user_lat},${user_lng}&destination=${lat},${lng}`
+          window.open(url);
+        },
+        (error) => {
+          window.open("https://maps.google.com?q=" + lat + "," + lng);
+        },
+        { enableHighAccuracy: false, timeout: 20000, maximumAge: 1000 },
+      );
+    }
+    else {
+      window.open("https://maps.google.com?q=" + lat + "," + lng);
+    }
   };
+
+  showPosition(position) {
+    alert( position.coords.latitude)
+   /* x.innerHTML = "Latitude: " + position.coords.latitude + 
+    "<br>Longitude: " + position.coords.longitude;*/
+  }
 
   openEmail = () => {
     window.location.href = `mailto:support@foodiebee.eu`;
@@ -654,7 +677,7 @@ class Order extends Component {
               <td
                 style={{ paddingLeft: 15, fontSize: 16,  textAlign: "start" }}
               >
-                {selectedLunchOrderItem.orderStatus === "pending"? "Paid" : "Charged"}
+                {selectedLunchOrderItem.orderStatus === "pending"? "Charge Pending" : "Charged"}
               </td>
               <td style={{ paddingRight: 15, fontSize: 16, fontWeight: "600", textAlign: "end" }}>
                 €{Number(selectedLunchOrderItem.totalOrderPrice).toFixed(2)}
@@ -761,7 +784,7 @@ class Order extends Component {
                 style={{ marginTop: 20, marginBottom: 10 }}
                 className="text-muted text-center"
               >
-                Any queries or request for refund, please contact us at&nbsp;
+                Any queries please contact us at&nbsp;
                 <Button color="link" onClick={() => this.openEmail()} style={{ fontWeight: '500',color: "#20a8d8" }} >
                   <p style={{padding: 0, marginTop: 0}}>support@foodiebee.eu</p>
                 </Button>
@@ -783,7 +806,10 @@ class Order extends Component {
         toggle={() => this.toggleLunchOrderModal()}
       >
         <ModalHeader toggle={() => this.toggleLunchOrderModal()}>
-          Order #{selectedLunchOrderItem.orderNumber}
+
+          <b style={{ color: "#FF5722", fontSize: 18 }}> Order #{selectedLunchOrderItem.orderNumber}</b>
+
+         
         </ModalHeader>
         <ModalBody style={{paddingTop: 0, paddingLeft: 0, paddingRight: 0}}>{this.rendeSelectedLunchOrderItems()}</ModalBody>
       </Modal>
@@ -978,7 +1004,7 @@ class Order extends Component {
                               opacity: 0.6
                             }}
                           >
-                            {item.orderStatus === "pending"? "Paid" : "Charged"}
+                            {item.orderStatus === "pending"? "Charge Pending" : "Charged"}
                           </td>
                           <td
                             style={{
@@ -990,7 +1016,7 @@ class Order extends Component {
                               color: "black"
                             }}
                           >
-                            €{Number(item.totalOrderPrice).toFixed(2)}
+                            { (item.orderStatus === "cancelled" || item.orderStatus === "rejected") ?  "€0" : "€" + Number(item.totalOrderPrice).toFixed(2)}
                           </td>
                         </tr>
                       </tbody>
