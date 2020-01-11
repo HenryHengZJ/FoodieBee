@@ -117,9 +117,24 @@ const RedMarker = ({}) =>
       marginTop: -45,
       height: 30,
       width: 30,
-      objectFit: "cover"
+      objectFit: "cover",
+      cursor: 'pointer',
     }}
     src={img.mapmarker_red}
+    alt=""
+  />;
+
+const BlueMarker = ({}) => 
+  <img
+    style={{
+      marginLeft: -15,
+      marginTop: -45,
+      height: 30,
+      width: 30,
+      objectFit: "cover",
+      cursor: 'pointer',
+    }}
+    src={img.mapmarker}
     alt=""
   />;
   
@@ -494,6 +509,15 @@ class SearchLunchChild extends Component {
   }
 
   menuItemClicked = (index) => {
+    this.setState({
+      menuModalOpen: !this.state.menuModalOpen,
+      activeMenu: this.state.dailyMenu[index],
+      activeIndex: index,
+    });
+  };
+
+  onMarkerClicked = (menuID) => {
+    var index = this.state.dailyMenu.findIndex(x => x._id === menuID);
     this.setState({
       menuModalOpen: !this.state.menuModalOpen,
       activeMenu: this.state.dailyMenu[index],
@@ -1687,9 +1711,22 @@ class SearchLunchChild extends Component {
           bootstrapURLKeys={{ key: [GOOGLE_API_KEY] }}
           center={this.state.center}
           zoom={13}
-          yesIWantToUseGoogleMapApiInternals={true}
-          onGoogleApiLoaded={({ map, maps }) => this.renderMarkers(map, maps, this.state.dailyMenu)}
+          onChildClick={(e) => this.onMarkerClicked(e)}
+        //  yesIWantToUseGoogleMapApiInternals={false}
+         // onGoogleApiLoaded={({ map, maps }) => this.renderMarkers(map, maps, this.state.dailyMenu)}
         >
+          {
+             this.state.dailyMenu.map((place, i) => (
+              <BlueMarker
+                key={place._id}
+                lat={place.catererDetails[0].location.coordinates[0]}
+                lng={place.catererDetails[0].location.coordinates[1]}
+              />
+            ))
+
+          }
+          
+
           {this.state.center ? 
           <CenterMarker
             lat={this.state.center.lat}
