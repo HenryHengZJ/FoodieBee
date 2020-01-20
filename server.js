@@ -17,6 +17,8 @@ var mail = require('./nodeMailerWithTemp');
 var sm = require('sitemap')
 require('./middleware/passport')(passport);
 
+console.log('process.env.NODE_DEV = ', process.env.NODE_DEV)
+
 console.log('dev = ', dev)
 // DB configuration ===============================================================
 const dbRoute = process.env.DB_URI;
