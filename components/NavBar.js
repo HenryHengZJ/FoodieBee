@@ -79,8 +79,8 @@ class NavBar extends Component {
       axios.get(url, {withCredentials: true}, {headers: headers})
         .then((response) => {
           if (response.status === 200) {
-            //Router.push(`/`)
-            window.location.assign(`${server}`);
+            Router.push(`/`)
+            //window.location.assign(`${server}`);
           }
         })
         .catch((error) => {

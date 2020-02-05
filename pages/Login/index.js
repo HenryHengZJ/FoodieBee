@@ -89,11 +89,21 @@ class Login extends Component {
               window.location.assign(`/searchlunch?companyID=${customerCompanyID}`)
             }
             else {
-              window.location.assign(`${server}/`);
+              if (`${server}` === 'https://foodiebee.herokuapp.com') {
+                window.location.assign(`https://foodiebee.eu/`);
+              }
+              else {
+                window.location.assign(`${server}/`);
+              }
             }
           }
           else {
-            window.location.assign(`${server}${this.state.returnurl}`);
+            if (`${server}` === 'https://foodiebee.herokuapp.com') {
+              window.location.assign(`https://foodiebee.eu${this.state.returnurl}`);
+            }
+            else {
+              window.location.assign(`${server}${this.state.returnurl}`);
+            }
           }
         }
       })
