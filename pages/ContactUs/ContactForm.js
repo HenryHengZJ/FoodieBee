@@ -147,7 +147,7 @@ class ContactForm extends React.Component {
         id="ContactInfo"
         className="white"
       >
-        <Container>
+        <Container style={{padding: 20}}>
           <Row className="justify-content-center" style={{ display: "flex" }}>
             <Col xs="12" style={{ textAlign: "center" }}>
               <h2 style={{ fontSize: 34 }}>Or Send Message</h2>

@@ -189,7 +189,7 @@ class SearchLunchChild extends Component {
       baseurl: "/searchlunch",
       locationquerystring: "",
       companyID: "",
-      isMobile: null,
+      isMobile: false,
       loading: true,
       empty: false,
       address: "",
@@ -1573,29 +1573,37 @@ class SearchLunchChild extends Component {
     return (
       <div style={{boxShadow: '0px 0px 3px #DEDEDE'}}>
         <Container>
-          <Row style={{ paddingTop: 20, paddingBottom: 10}}>
+          <Row className="justify-content-center" style={{ paddingTop: 20, paddingBottom: 10, paddingRight: 10, paddingLeft: 10}}>
 
-            <Col style={{ marginTop: 25, paddingLeft: 30 }} xs={this.state.isMobile ? "10": "12"} md={this.state.isMobile ? "10" : "6"}>
-              <Form action="" method="post" className="form-horizontal">
-                <FormGroup row>
-                  <Col md="12">
-                    <InputGroup >
-                      <Input onChange={e => this.handleSearchNameChange(e)} value={this.state.searchName} style={{ borderWidth:1.5, color:'black', fontSize: 15, height: 45, borderTopLeftRadius: 15, borderBottomLeftRadius: 15}} type="text" id="input1-group2" name="input1-group2" placeholder="Search Meals" />      
-                      <InputGroupAddon addonType="prepend">
-                        <Button onClick={() => this.searchNameClicked()} style={{borderTopRightRadius: 15, borderBottomRightRadius: 15}}  type="button" color="primary"><i className="fa fa-search"></i></Button>
-                      </InputGroupAddon>
-                    </InputGroup>
-                  </Col>
-                </FormGroup>
-              </Form>
+             <Col xs="12" md={this.state.isMobile ? "12" : "6"}>
+
+              <Row className="justify-content-center" style={{paddingTop: 22, }}>
+                <div style={{width: "70%", marginLeft: 10, marginRight: 5,}} >
+                  <Form action="" method="post" className="form-horizontal">
+                    <FormGroup row>
+                      <Col md="12">
+                        <InputGroup >
+                          <Input onChange={e => this.handleSearchNameChange(e)} value={this.state.searchName} style={{ borderWidth:1.5, color:'black', fontSize: 15, height: 45, borderTopLeftRadius: 15, borderBottomLeftRadius: 15}} type="text" id="input1-group2" name="input1-group2" placeholder="Search Meals" />      
+                          <InputGroupAddon addonType="prepend">
+                            <Button onClick={() => this.searchNameClicked()} style={{borderTopRightRadius: 15, borderBottomRightRadius: 15}}  type="button" color="primary"><i className="fa fa-search"></i></Button>
+                          </InputGroupAddon>
+                        </InputGroup>
+                      </Col>
+                    </FormGroup>
+                  </Form>
+                </div>
+
+                {this.state.isMobile ?
+
+                <Button style={{marginLeft: 5, padding: 10, borderRadius: 10, height: 45,}} onClick={() => this.toggleView()} color="primary" outline>
+                  {this.state.isMapView ? "List" : "Map"}
+                </Button> : null }
+
+              </Row>
+
             </Col>
 
-            {this.state.isMobile ?
-            <Col style={{ marginTop: 25, paddingRight: 30 }} xs="2">
-              <Button style={{padding: 10, borderRadius: 10,}} onClick={() => this.toggleView()} color="primary" outline>
-                {this.state.isMapView ? "List" : "Map"}
-              </Button>
-            </Col> : null }
+         
 
             <Col xs="12" md={this.state.isMobile ? "12" : "6"}>
               <Row className="justify-content-center" style={{paddingTop: 20, paddingBottom: 20}}>

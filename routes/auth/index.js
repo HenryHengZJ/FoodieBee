@@ -112,6 +112,7 @@ router.post('/customerlogin', (req, res) => {
                 customerID: user._id,
                 customerName: user.customerFirstName,
                 customerEmail: user.customerEmail,
+                customerCompanyID: user.customerCompanyID,
                 refreshToken: refreshToken,
                 expires: myDate, 
             };

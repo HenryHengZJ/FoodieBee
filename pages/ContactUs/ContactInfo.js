@@ -129,9 +129,9 @@ class ContactInfo extends Component {
         id="ContactInfo"
         className="white"
       >
-        <Container>
+        <Container style={{padding: 20}}>
           <Row
-            style={{ paddingTop: 20, flex: 1, display: "flex" }}
+            style={{ margin: 0, paddingTop: 20, flex: 1, display: "flex" }}
             className="justify-content-center"
           >
             <Col xs="12" style={{ textAlign: "center" }}>

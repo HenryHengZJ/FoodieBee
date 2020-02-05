@@ -6,7 +6,7 @@ import img from "../../assets/img"
 class HowItWorks extends React.Component {
   constructor(props) {
     super(props);
-  }
+  }z
 
   render() {
     return (

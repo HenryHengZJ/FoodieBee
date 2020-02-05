@@ -24,12 +24,10 @@ class Caterer extends React.Component {
             <Col style={{marginTop: 50}} xs="12" md="6" > 
               <h2 style={{fontSize: 34}}>Restaurant? Be a partner</h2>
               <p style={{marginTop: 30, fontSize: 16}}>Join our community of great restaurants serving thousands of hungry employees during lunch time.</p>
-
-              <Link href="/caterersignup">
-                <div className="text-start"> 
-                  <Button style={{fontSize: 18, height: 50, marginTop: 10, marginBottom: 30,}} className="bg-primary" size="lg" color="primary">Learn More</Button>
-                </div>
-              </Link>
+          
+              <div className="text-start"> 
+                <Button href="/caterersignup" style={{fontSize: 18, height: 50, marginTop: 10, marginBottom: 30,}} className="bg-primary" size="lg" color="primary">Learn More</Button>
+              </div>
     
             </Col>
 

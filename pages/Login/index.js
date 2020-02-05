@@ -84,7 +84,13 @@ class Login extends Component {
       .then((response) => {
         if (response.status === 200) {
           if (typeof this.state.returnurl === 'undefined') {
-            window.location.assign(`${server}/`);
+            if (typeof response.data.customerCompanyID  !== 'undefined') {
+              const customerCompanyID = response.data.customerCompanyID
+              window.location.assign(`/searchlunch?companyID=${customerCompanyID}`)
+            }
+            else {
+              window.location.assign(`${server}/`);
+            }
           }
           else {
             window.location.assign(`${server}${this.state.returnurl}`);

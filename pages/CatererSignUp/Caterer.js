@@ -26,7 +26,7 @@ class Caterer extends React.Component {
         id="Caterer"
         className="white"
       >
-        <Container>
+        <Container style={{padding: 20}}>
           <Row style={{margin: 0, flex: 1, display: 'flex'}}>
             <Col style={{ textAlign: "start", marginTop: 50 }} xs="12" md="6">
               <h2 style={{ fontSize: 34 }}>Catering has never been so easy</h2>
@@ -55,7 +55,7 @@ class Caterer extends React.Component {
             </Col>
             <Col style={{ marginTop: 20, textAlign: "center" }} xs="12" md="6">
               <img
-                style={{ objectFit: "cover", width: 300, height: 300 }}
+                style={{ objectFit: "contain", width: '80%', height: '100%' }}
                 src={img.caterer_ingredients}
                 alt="Food Ingredients"
               />

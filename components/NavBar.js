@@ -50,16 +50,6 @@ class NavBar extends Component {
     });
   }
 
-  goLunchClicked = (event) => {
-    event.preventDefault();
-    Router.push(`/`)
-  }
-
-  goCateringClicked = (event) => {
-    event.preventDefault();
-    Router.push(`/catering`)
-  }
-
   aboutUsClicked = () => {
     Router.push(`/aboutus`)
   }
@@ -132,10 +122,10 @@ class NavBar extends Component {
           <Collapse isOpen={this.state.isOpen} navbar>
             <Nav className="ml-auto" navbar>
               <NavItem>
-                <NavLink href="/caterersignup" onClick={e => this.caterersignupClicked(e)} style={{ cursor: 'pointer', color: colorVal, fontWeight: '600', fontSize: 15, paddingLeft: 20, paddingRight: 20}} target="_blank">For Restaurants</NavLink>
+                <NavLink href="/caterersignup" style={{ cursor: 'pointer', color: colorVal, fontWeight: '600', fontSize: 15, paddingLeft: 20, paddingRight: 20}}>For Restaurants</NavLink>
               </NavItem>
               <NavItem>
-                <NavLink href="/contactus" onClick={e => this.contactUsClicked(e)} style={{ cursor: 'pointer', color: colorVal, fontWeight: '600', fontSize: 15, paddingLeft: 20, paddingRight: 20}} target="_blank">Contact</NavLink>
+                <NavLink href="/contactus" style={{ cursor: 'pointer', color: colorVal, fontWeight: '600', fontSize: 15, paddingLeft: 20, paddingRight: 20}}>Contact</NavLink>
               </NavItem>
 
               {userLoggedInVal ?
@@ -155,19 +145,19 @@ class NavBar extends Component {
                   </DropdownToggle>
                   <DropdownMenu right style={{ right: 0, left: 'auto' }}>
                     <DropdownItem href="/userprofile/Account Info" onClick={() => this.navItemClicked("Account Info")}>Account Info</DropdownItem>
-                    <DropdownItem onClick={() => this.navItemClicked("Go Prime")}>Go Prime</DropdownItem>
-                    <DropdownItem onClick={() => this.navItemClicked("Free Rewards")}>Free Rewards</DropdownItem>
-                    <DropdownItem onClick={() => this.navItemClicked("Orders")}>Orders</DropdownItem>
-                    <DropdownItem onClick={() => this.navItemClicked("Payment Methods")}>Payment Methods</DropdownItem>
-                    <DropdownItem onClick={() => this.navItemClicked("Company Address")}>Company Address</DropdownItem>
-                    <DropdownItem onClick={() => this.navItemClicked("Reviews")}>Reviews</DropdownItem>
+                    <DropdownItem href="/userprofile/Go Prime" onClick={() => this.navItemClicked("Go Prime")}>Go Prime</DropdownItem>
+                    <DropdownItem href="/userprofile/Free Rewards" onClick={() => this.navItemClicked("Free Rewards")}>Free Rewards</DropdownItem>
+                    <DropdownItem href="/userprofile/Orders" onClick={() => this.navItemClicked("Orders")}>Orders</DropdownItem>
+                    <DropdownItem href="/userprofile/Payment Methods" onClick={() => this.navItemClicked("Payment Methods")}>Payment Methods</DropdownItem>
+                    <DropdownItem href="/userprofile/Company Address" onClick={() => this.navItemClicked("Company Address")}>Company Address</DropdownItem>
+                    <DropdownItem href="/userprofile/Reviews" onClick={() => this.navItemClicked("Reviews")}>Reviews</DropdownItem>
                     <DropdownItem onClick={() => this.navItemClicked("Log Out")}>Log Out</DropdownItem>
                   </DropdownMenu>
                 </UncontrolledDropdown>
               </NavItem>
               : 
               <NavItem>
-                <NavLink href="/login" onClick={e => this.props.signIn(e)} style={{ cursor: 'pointer', color: this.state.signInHover ? "#20a8d8" : colorVal, fontWeight: '600', fontSize: 15, paddingLeft: 20, paddingRight: 20}} target="_blank">Sign In</NavLink>
+                <NavLink href="/login" onClick={e => this.props.signIn(e)} style={{ cursor: 'pointer', color: this.state.signInHover ? "#20a8d8" : colorVal, fontWeight: '600', fontSize: 15, paddingLeft: 20, paddingRight: 20}}>Sign In</NavLink>
               </NavItem>
               }
 

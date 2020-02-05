@@ -271,7 +271,7 @@ class Banner extends React.Component {
       <section
         id="hero"
         style={{
-          height: isMobile ? 800 : 600,
+          height: isMobile ? 940 : 600,
           marginTop: -70,
           backgroundImage: "url(" + img.caterer_wallpaper + ")",
           backgroundSize: "cover"
@@ -297,7 +297,7 @@ class Banner extends React.Component {
             </h6>
           </Col>
 
-          <Col style={{ marginTop: 50 }} xs={isMobile ? "10" : "4"}>
+          <Col style={{ marginTop: 50, }} xs={isMobile ? "10" : "4"}>
             <Card>
               <CardBody>
                 <FormGroup>

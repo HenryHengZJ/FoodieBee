@@ -33,7 +33,7 @@ class Banner extends React.Component {
           backgroundSize: "cover"
         }}
       >
-        <Row className="justify-content-center" style={{ display: "flex" }}>
+        <Row className="justify-content-center" style={{margin: 0,  display: "flex", flex: 1 }}>
           <Col
             style={{
               textAlign: "center",

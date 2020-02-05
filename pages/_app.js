@@ -13,7 +13,7 @@ const DEFAULT_SEO = {
     locale: 'en_IE',
     url: 'https://www.foodiebee.eu',
     title: 'FoodieBee | Your lunch awaits',
-    description: 'FoodieBee, Ireland first catering marketplace platform. We provide wide ranges of restaurants and local caterers suitable for corporate caterings such as breakfast, lunch, events, and meetings. Order online for free through FoodieBee.',
+    description: 'Discover scrumptious lunch from local restaurants at the best price you will ever find. Order ahead, bypass the queue, pickup the food and enjoy!',
     images: [
       {
         url: 'https://foodiebeegeneralphoto.s3-eu-west-1.amazonaws.com/FoodieBee_coverphoto.jpg',
