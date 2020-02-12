@@ -460,7 +460,6 @@ class Order extends Component {
       }); 
   }
 
-
   renderFailedModal() {
 
     const defaultOptions = {
@@ -1073,9 +1072,7 @@ class Order extends Component {
               opacity: 0.6
             }}
             alt={""}
-            src={
-              "https://s3-eu-west-1.amazonaws.com/foodiebeegeneralphoto/empty.png"
-            }
+            src={img.openbox}
           />
         </Col>
         <Col style={{ textAlign: "center" }} xs="12">
@@ -1136,7 +1133,7 @@ class Order extends Component {
             <Col style={{ marginTop: 20 }} xs="12">
               {this.state.loading
                 ? this.renderLoadingItems()
-                : this.state.lunchtableitems.length > 0
+                : this.state.filtered_data.length > 0
                 ? this.renderItems()
                 : this.renderEmptyItems()}
             </Col>

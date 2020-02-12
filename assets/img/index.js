@@ -72,6 +72,7 @@ export default {
 	noodles_black: "https://s3-eu-west-1.amazonaws.com/foodiebeegeneralphoto/noodles_black.png",
 	officedaily: "https://s3-eu-west-1.amazonaws.com/foodiebeegeneralphoto/officedaily.jpg",	
 	orders: "https://s3-eu-west-1.amazonaws.com/foodiebeegeneralphoto/orders.png",
+	openbox: "https://s3-eu-west-1.amazonaws.com/foodiebeegeneralphoto/openbox.png",
 	paymentontime: "https://s3-eu-west-1.amazonaws.com/foodiebeegeneralphoto/paymentontime.png",
    	pepper: "https://s3-eu-west-1.amazonaws.com/foodiebeegeneralphoto/pepper.png",
   	performance: "https://s3-eu-west-1.amazonaws.com/foodiebeegeneralphoto/performance.png",

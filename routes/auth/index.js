@@ -104,9 +104,6 @@ router.post('/customerlogin', (req, res) => {
         }
         else {
             /** This is what ends up in our JWT */
-            var myDate = new Date();
-            myDate.setHours(myDate.getHours() + 24);
-            console.log(myDate)
             var refreshToken = randtoken.uid(256) 
             const payload = {
                 customerID: user._id,
@@ -114,7 +111,6 @@ router.post('/customerlogin', (req, res) => {
                 customerEmail: user.customerEmail,
                 customerCompanyID: user.customerCompanyID,
                 refreshToken: refreshToken,
-                expires: myDate, 
             };
 
             /** assigns payload to req.user */

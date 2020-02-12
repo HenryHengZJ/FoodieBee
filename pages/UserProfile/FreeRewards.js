@@ -126,8 +126,8 @@ class FreeRewards extends Component {
         
         <div style={{textAlign: 'center', paddingTop: 10}}>
           <Row >
-            <Col xs="1"></Col>
-            <Col style={{paddingRight: 2}} xs="7" md="7">
+           
+            <Col xs="12" md="8">
               <Input style={{color: 'black', padding: 15, height: 50}}
                 type="email"
                 id="hf-email"
@@ -140,10 +140,10 @@ class FreeRewards extends Component {
                 }}
               />         
             </Col>
-            <Col style={{paddingLeft: 2}} xs="3" md="3">
+            <Col  xs="12" md="4">
               <Button block style={{fontSize: 18, height: 50}} color="primary" onClick={() => this.onSendInvite()}>Send</Button>
             </Col>
-            <Col xs="1"></Col>
+            
           </Row>
         </div>
 
@@ -152,19 +152,19 @@ class FreeRewards extends Component {
             <Col xs="12">
               <p style={{marginTop: 20, fontSize: 16, fontWeight: '500'}}>Share your invite link</p>
             </Col>
-            <Col xs="1"></Col>
-            <Col style={{paddingRight: 2}} xs="7" md="7">
+           
+            <Col xs="12" md="8">
               <p style={{ color: 'black', paddingTop: 10, paddingLeft:15, paddingRight:15, height: '100%', borderWidth: 1, borderStyle: 'solid', borderRadius: 5, borderColor: '#D4D4D4',}}>
                 {this.state.shareLink}
               </p>         
             </Col>
-            <Col style={{paddingLeft: 2}} xs="3" md="3">
+            <Col xs="12" md="4">
               <CopyToClipboard text={this.state.shareLink}
                 onCopy={() => this.onCopyLink()}>
                 <Button disabled={this.state.copied ? true : false} outline block style={{fontSize: 18, height: 50}} color="primary">{this.state.copied ? "Copied" : "Copy"}</Button>
               </CopyToClipboard>
             </Col>
-            <Col xs="1"></Col>
+           
           </Row>
         </div>
         </CardBody>

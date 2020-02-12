@@ -1,7 +1,9 @@
 var express = require('express');
 var router = express.Router();
 require('dotenv').config();
-const stripe = require('stripe')(process.env.STRIPE_KEY);
+const stripe = require('stripe')(process.env.STRIPE_KEY, {
+  apiVersion: '2019-12-03',
+});
 
 /*router.post('/create_customer_card', (req, res) => { 
 
