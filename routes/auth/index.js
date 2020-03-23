@@ -121,7 +121,7 @@ router.post('/customerlogin', (req, res) => {
                 }
                 else {
                     /** generate a signed json web token and return it in the response */
-                    const token = jwt.sign(payload, process.env.jwtSecretKey, {expiresIn: '2m'} );
+                    const token = jwt.sign(payload, process.env.jwtSecretKey, {expiresIn: '30m'} );
 
                     console.log(token)
 

@@ -199,7 +199,7 @@ function authenticate() {
                             refreshToken: decodedPayload.refreshToken,
                             expires: myDate, 
                         };
-                        const token = jwt.sign(payload, process.env.jwtSecretKey, {expiresIn: '2m'} );
+                        const token = jwt.sign(payload, process.env.jwtSecretKey, {expiresIn: '30m'} );
                         req.user = payload;
                         req.jwttoken = token
                         next();
@@ -224,7 +224,7 @@ function authenticate() {
                             refreshToken: decodedPayload.refreshToken,
                             expires: myDate, 
                         };
-                        const token = jwt.sign(payload, process.env.jwtSecretKey, {expiresIn: '2m'} );
+                        const token = jwt.sign(payload, process.env.jwtSecretKey, {expiresIn: '30m'} );
                         req.user = payload;
                         req.jwttoken = token
                         next();

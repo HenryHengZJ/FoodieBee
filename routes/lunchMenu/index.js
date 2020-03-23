@@ -17,6 +17,7 @@ router.get('/get_lunchmenu',  (req, res) => {
     
     Company.find(company_matchquery, (company_err, company_doc) => {
         if (company_err) {
+            console.log(company_err)
             return res.status(500).send({ error: company_err });
         }
         else {
@@ -40,6 +41,7 @@ router.get('/get_lunchmenu',  (req, res) => {
 
                 Caterer.find(restaurant_matchquery, (restaurant_err, restaurant_doc) => {
                     if (restaurant_err) {
+                        console.log(restaurant_err)
                         return res.status(500).send({ error: restaurant_err });
                     }
                     else {
@@ -83,6 +85,7 @@ router.get('/get_lunchmenu',  (req, res) => {
                                 }
                               ], (lunchmenu_err, lunchmenu_doc) => {
                                  if (lunchmenu_err) {
+                                    console.log(lunchmenu_err)
                                      return res.status(500).send({ error: lunchmenu_err });
                                  }
                                  else {

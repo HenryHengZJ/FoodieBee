@@ -214,6 +214,7 @@ class Banner extends React.Component {
           } 
         })
         .catch((error) => {
+          console.log(error)
           if (error) {
             this.toggleModal("Failed")
             this.setState({
