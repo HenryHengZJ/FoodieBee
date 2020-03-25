@@ -54,6 +54,7 @@ router.put('/updatecustomerprofile', authenticate(), (req, res) => {
             if (typeof token !== 'undefined') {
                 res.cookie('jwt', token, { httpOnly: true,});
             }
+            res.cookie('userName', doc.customerFirstName, {maxAge: 900000});
             res.status(201).header('x-auth', token).json(doc)
         }
     });

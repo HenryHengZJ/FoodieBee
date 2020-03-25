@@ -128,7 +128,7 @@ router.post('/customerlogin', (req, res) => {
                     /** assign our jwt to the cookie */
                     res.cookie('jwt', token, { httpOnly: true,});
                     res.cookie('refreshToken', refreshToken, { httpOnly: true,});
-                    res.cookie('userName', user.customerFirstName);
+                    res.cookie('userName', user.customerFirstName, {maxAge: 900000});
                     res.status(200).header('x-auth', token).json(payload);
                 }
             });
