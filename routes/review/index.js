@@ -210,42 +210,21 @@ function authenticate() {
             next(err);
         } 
         else if (info) {
-           // next(info);
+            var devicetype = null
+
             if (info.name === 'TokenExpiredError') {
-
-                var myDate = new Date();
-                myDate.setHours(myDate.getHours() + 24);
-
+                
                 if (req && req.headers.authorization && req.headers.authorization.split(" ")[0] === 'Bearer' && req.headers.authorization.split(" ")[2] === 'Refresh') {
-                    const refresh_token = req.headers.authorization.split(" ")[3]
-                    console.log('refresh_token =', refresh_token)
-
-                    const jwttoken = req.headers.authorization.split(" ")[1]
-                    var decoded = jwt.decode(jwttoken, {complete: true});
-                    var decodedPayload = decoded.payload
-
-                    if (decodedPayload.refreshToken === refresh_token) {
-                        const payload = {
-                            customerID: decodedPayload.customerID,
-                            customerName: decodedPayload.customerName,
-                            customerEmail: decodedPayload.customerEmail,
-                            refreshToken: decodedPayload.refreshToken,
-                            expires: myDate, 
-                        };
-                        const token = jwt.sign(payload, process.env.jwtSecretKey, {expiresIn: '30m'} );
-                        req.user = payload;
-                        req.jwttoken = token
-                        next();
-                    }
-                    else {
-                        res.status(401).send('Unauthorized');
-                    }
+                    devicetype = 'mobile'
                 }
-                else if (req && req.cookies['jwt'] && req.cookies['refreshToken']) {
-                    const refresh_token = req.cookies['refreshToken']
-                    console.log('refresh_token =', refresh_token)
+                if (req && req.cookies['jwt'] && req.cookies['refreshToken']) {
+                    devicetype = 'web'
+                }
 
-                    const jwttoken = req.cookies['jwt']
+                if (devicetype){
+
+                    const refresh_token = devicetype == 'web' ? req.cookies['refreshToken'] : req.headers.authorization.split(" ")[3]
+                    const jwttoken = devicetype == 'web' ? req.cookies['jwt'] : req.headers.authorization.split(" ")[1]
                     var decoded = jwt.decode(jwttoken, {complete: true});
                     var decodedPayload = decoded.payload
 
@@ -254,8 +233,8 @@ function authenticate() {
                             customerID: decodedPayload.customerID,
                             customerName: decodedPayload.customerName,
                             customerEmail: decodedPayload.customerEmail,
+                            customerCompanyID: decodedPayload.customerCompanyID,
                             refreshToken: decodedPayload.refreshToken,
-                            expires: myDate, 
                         };
                         const token = jwt.sign(payload, process.env.jwtSecretKey, {expiresIn: '30m'} );
                         req.user = payload;
@@ -270,8 +249,27 @@ function authenticate() {
                     res.status(401).send('Unauthorized');
                 }
             }
+            //No JWT Token (jwt in cookies is gone)
             else {
-                res.status(401).send('Unauthorized');
+                if (req && req.cookies['refreshToken']) {
+                    const refresh_token = req.cookies['refreshToken']
+                    var decoded = jwt.decode(refresh_token, {complete: true});
+                    var decodedPayload = decoded.payload
+                    const payload = {
+                        customerID: decodedPayload.customerID,
+                        customerName: decodedPayload.customerName,
+                        customerEmail: decodedPayload.customerEmail,
+                        customerCompanyID: decodedPayload.customerCompanyID,
+                        refreshToken: refresh_token,
+                    };
+                    const token = jwt.sign(payload, process.env.jwtSecretKey, {expiresIn: '30m'} );
+                    req.user = payload;
+                    req.jwttoken = token
+                    next(); 
+                }
+                else {
+                    res.status(401).send('Unauthorized');
+                }
             }
         } 
         else {
@@ -282,5 +280,6 @@ function authenticate() {
       })(req, res, next);
     };
   }
+
 
 module.exports = router;

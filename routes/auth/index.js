@@ -104,7 +104,15 @@ router.post('/customerlogin', (req, res) => {
         }
         else {
             /** This is what ends up in our JWT */
-            var refreshToken = randtoken.uid(256) 
+            const refresh_payload = {
+                customerID: user._id,
+                customerName: user.customerFirstName,
+                customerEmail: user.customerEmail,
+                customerCompanyID: user.customerCompanyID,
+            };
+
+            const refreshToken = jwt.sign(refresh_payload, process.env.jwtSecretKey, {expiresIn: '365d'} );
+
             const payload = {
                 customerID: user._id,
                 customerName: user.customerFirstName,
@@ -127,8 +135,8 @@ router.post('/customerlogin', (req, res) => {
 
                     /** assign our jwt to the cookie */
                     res.cookie('jwt', token, { httpOnly: true,});
-                    res.cookie('refreshToken', refreshToken, { httpOnly: true,});
-                    res.cookie('userName', user.customerFirstName, {maxAge: 7 * 24 * 60 * 60 * 1000});
+                    res.cookie('refreshToken', refreshToken, { httpOnly: true, maxAge: 365 * 24 * 60 * 60 * 1000});
+                    res.cookie('userName', user.customerFirstName, {maxAge: 365 * 24 * 60 * 60 * 1000});
                     res.status(200).header('x-auth', token).json(payload);
                 }
             });
