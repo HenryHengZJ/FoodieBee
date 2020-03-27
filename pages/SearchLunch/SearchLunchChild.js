@@ -518,11 +518,13 @@ class SearchLunchChild extends Component {
 
   onMarkerClicked = (menuID) => {
     var index = this.state.dailyMenu.findIndex(x => x._id === menuID);
-    this.setState({
-      menuModalOpen: !this.state.menuModalOpen,
-      activeMenu: this.state.dailyMenu[index],
-      activeIndex: index,
-    });
+    if (index >= 0) {
+      this.setState({
+        menuModalOpen: !this.state.menuModalOpen,
+        activeMenu: this.state.dailyMenu[index],
+        activeIndex: index,
+      });
+    }
   };
 
   handleCompanyChange = (selectedCompany) => {
@@ -974,6 +976,7 @@ class SearchLunchChild extends Component {
         style={{
           textAlign: "start",
           marginTop:20, 
+          marginBottom: 20,
         }}
       >
         <Col>
@@ -1336,7 +1339,16 @@ class SearchLunchChild extends Component {
           </div>
 
           {typeof activeMenu.markitem === 'undefined' || activeMenu.markitem.length === 0 ? null : this.renderIcon(activeMenu.markitem)} 
-
+        
+          <FormGroup>
+            <Input value={this.state.selectedPickUpTime} onChange={(e) => this.handlePickUpChange(e)} style={{color:'black', fontSize: 14, fontWeight: '600', letterSpacing: 1}} type="select" placeholder="Select Pick Up Time" autoComplete="pickuptime">
+            <option value="" disabled> Pickup Time</option>
+            {this.time.map(time =>
+              <option style={{color:'black'}} key={time} value={time}>{time}</option>
+            )}
+            </Input>
+          </FormGroup>
+          
           <Row>
           
             {!this.state.customerIsPrime ? 
@@ -1349,7 +1361,7 @@ class SearchLunchChild extends Component {
                 <tbody>
                   <tr>
                     <td onClick={this.togglePrimeModal} style={{cursor: "pointer", textAlign: 'start', paddingBottom: 0}}>
-                      <b style={{fontSize: 16, fontWeight: '700', color: "#FF5722",marginTop: 12,}}>Get it for €{activeMenu.discountedprice} with 
+                      <b style={{fontSize: 16, fontWeight: '600', color: "#FF5722",marginTop: 12,}}>Pay just <b style={{fontSize: 20, fontWeight: '700', color: "#FF5722",marginTop: 12,}}>€{activeMenu.discountedprice}</b> with 
                       <Button style={{cursor: "pointer", marginLeft: 10, opacity: 1.0, padding: 5, fontWeight: '600', fontSize: 12,borderWidth: 0, backgroundColor: "#FF5722", color: "white" }} onClick={this.togglePrimeModal}>PRIME</Button>          
                       </b>
                       <p style={{fontSize: 14, fontWeight: '600', color: "#FF5722", }}>You saved €{this.getSaveAmount(activeMenu.priceperunit, activeMenu.discountedprice)}!</p>
@@ -1371,19 +1383,9 @@ class SearchLunchChild extends Component {
               </p>
             </Col> : null }
 
-            <Col style={{marginTop: 15,}} xs="4" md="4">
-              <FormGroup>
-                <Input value={this.state.selectedPickUpTime} onChange={(e) => this.handlePickUpChange(e)} style={{color:'black', fontSize: 14, fontWeight: '600', letterSpacing: 1}} type="select" placeholder="Select Pick Up Time" autoComplete="pickuptime">
-                <option value="" disabled> Pickup Time</option>
-                {this.time.map(time =>
-                  <option style={{color:'black'}} key={time} value={time}>{time}</option>
-                )}
-                </Input>
-              </FormGroup>
-            </Col>
-
-            <Col style={{marginTop: 15,}} xs="8" md="8">
-              <Button block style={{paddingTop: 0,}} onClick={() => this.state.customerEmail === "" ? this.goToLogin() : this.state.customerHasOrderedToday ? this.toggleLimitModal() : this.state.customerPaymentAccountID === "" ? this.togglePaymentCardModal() : this.getCustomerCard()} color="primary" disabled={this.state.isMenuExpired ? true : this.state.selectedPickUpTime === "" ? true : false}>
+            
+            <Col style={{marginTop: 15,}} xs="12">
+              <Button block style={{paddingTop: 5, paddingBottom: 10}} onClick={() => this.state.customerEmail === "" ? this.goToLogin() : this.state.customerHasOrderedToday ? this.toggleLimitModal() : this.state.customerPaymentAccountID === "" ? this.togglePaymentCardModal() : this.getCustomerCard()} color="primary" disabled={this.state.isMenuExpired ? true : this.state.selectedPickUpTime === "" ? true : false}>
                 <Table style={{margin: 0, padding: 0, }} borderless>
                   <tbody>
                     <tr>
@@ -1391,7 +1393,7 @@ class SearchLunchChild extends Component {
                         <b style={{fontSize: 17, fontWeight: '600', color: "white", letterSpacing: 1}}>Pre-Order</b>
                       </td>
                       <td style={{textAlign: 'end', paddingBottom: 0, paddingTop: 5,}}>
-                        <b style={{fontSize: 16, fontWeight: '600', color: "white", letterSpacing: 1}}>€{Number(this.state.customerIsPrime ? activeMenu.discountedprice : activeMenu.priceperunit).toFixed(2)}</b>
+                        <b style={{fontSize: 17, fontWeight: '600', color: "white", letterSpacing: 1}}>€{Number(this.state.customerIsPrime ? activeMenu.discountedprice : activeMenu.priceperunit).toFixed(2)} {this.state.customerIsPrime ? "" : "(Full Price)"}</b>
                       </td>
                     </tr>
                   </tbody>
@@ -1493,7 +1495,9 @@ class SearchLunchChild extends Component {
                       style={{
                         cursor: "pointer",
                         marginTop: 5,
-                        fontWeight: '600'
+                        fontWeight: '600',
+                        textDecoration: 'line-through',
+                        opacity: 0.7
                       }}
                       className="h5 float-left"
                     >
@@ -1505,10 +1509,10 @@ class SearchLunchChild extends Component {
                         marginLeft: 10, 
                         color: "#FF5722"
                       }}
-                      className="h5 float-right"
+                      className="h5 float-left"
                     >
-                      <Button style={{cursor: "pointer", marginRight: 5, opacity: 1.0, padding: 5, fontWeight: '600', fontSize:11, borderWidth: 0, backgroundColor: "#FF5722", color: "white" }} disabled>PRIME</Button>          
-                      <Label style={{cursor: "pointer", fontSize: 22}}>€{item.discountedprice}</Label>
+                      <Label style={{cursor: "pointer", fontSize: 24}}>€{item.discountedprice}</Label>
+                      <Button style={{ marginTop: -5, letterSpacing: 1, cursor: "pointer", marginLeft: 5, opacity: 1.0, padding: 5, fontWeight: '500', fontSize:10, borderWidth: 0, backgroundColor: "#FF5722", color: "white" }} disabled>PRIME</Button>          
                     </div>
                   
                 </div>
@@ -1572,41 +1576,24 @@ class SearchLunchChild extends Component {
 
     return (
       <div style={{boxShadow: '0px 0px 3px #DEDEDE'}}>
-        <Container>
-          <Row className="justify-content-center" style={{ paddingTop: 20, paddingBottom: 10, paddingRight: 10, paddingLeft: 10}}>
+         <div className="container-fluid">
+          <Row className="justify-content-center" style={{ padding: 10, width: '80%', marginLeft: 10}}>
 
-             <Col xs="12" md={this.state.isMobile ? "12" : "6"}>
-
-              <Row className="justify-content-center" style={{paddingTop: 22, }}>
-                <div style={{width: "70%", marginLeft: 10, marginRight: 5,}} >
-                  <Form action="" method="post" className="form-horizontal">
-                    <FormGroup row>
-                      <Col md="12">
-                        <InputGroup >
-                          <Input onChange={e => this.handleSearchNameChange(e)} value={this.state.searchName} style={{ borderWidth:1.5, color:'black', fontSize: 15, height: 45, borderTopLeftRadius: 15, borderBottomLeftRadius: 15}} type="text" id="input1-group2" name="input1-group2" placeholder="Search Meals" />      
-                          <InputGroupAddon addonType="prepend">
-                            <Button onClick={() => this.searchNameClicked()} style={{borderTopRightRadius: 15, borderBottomRightRadius: 15}}  type="button" color="primary"><i className="fa fa-search"></i></Button>
-                          </InputGroupAddon>
-                        </InputGroup>
-                      </Col>
-                    </FormGroup>
-                  </Form>
-                </div>
-
-                {this.state.isMobile ?
-
-                <Button style={{marginLeft: 5, padding: 10, borderRadius: 10, height: 45,}} onClick={() => this.toggleView()} color="primary" outline>
-                  {this.state.isMapView ? "List" : "Map"}
-                </Button> : null }
-
-              </Row>
+             <Col xs="6" style={{paddingTop: 20, paddingBottom: 20,backgroundColor: 'white'}}>
+           
+              <InputGroup >
+                <Input onChange={e => this.handleSearchNameChange(e)} value={this.state.searchName} style={{ borderWidth:1.5, color:'black', fontSize: 15, height: 47, borderTopLeftRadius: 15, borderBottomLeftRadius: 15}} type="text" id="input1-group2" name="input1-group2" placeholder="Search Meals" />      
+                <InputGroupAddon addonType="prepend">
+                  <Button onClick={() => this.searchNameClicked()} style={{borderTopRightRadius: 15, borderBottomRightRadius: 15}}  type="button" color="primary"><i className="fa fa-search"></i></Button>
+                </InputGroupAddon>
+              </InputGroup>    
 
             </Col>
 
          
 
-            <Col xs="12" md={this.state.isMobile ? "12" : "6"}>
-              <Row className="justify-content-center" style={{paddingTop: 20, paddingBottom: 20}}>
+            <Col xs="6" style={{paddingTop: 20, paddingBottom: 20,  backgroundColor: 'white'}}>
+              <Row className="justify-content-center" >
                  <img
                   style={{
                     objectFit: "cover",
@@ -1615,7 +1602,82 @@ class SearchLunchChild extends Component {
                     marginTop: 10
                   }}
                   alt={""}
-                  src={img.mapmarker}
+                  src={img.location_pin}
+                  />
+               
+               <div style={{width: "80%", marginLeft: 10}} >
+                  <Select
+                    value={this.state.selectedCompany}
+                    options={searchList}
+                    onChange={this.handleCompanyChange}
+                    onInputChange={this.doSearch}
+                    placeholder="ex: Google"
+                    openMenuOnClick={false}
+                    styles={customStyles}
+                    components={{ DropdownIndicator }}
+                  />
+                </div>
+            
+              </Row>
+            </Col>
+          </Row>
+        </div>
+      <div style={{height: 1, backgroundColor: 'gray', opacity: 0.3}}></div>
+      </div>
+    )
+  }
+
+  renderMobileTopBar() {
+
+    const searchList = this.state.companyList.map(({ _id, companyName, companyFullAddress }) => {
+      return {
+        value: _id,
+        label: _id === 0 ? companyName + companyFullAddress : companyName + " | " + companyFullAddress
+      };
+    });
+
+    const DropdownIndicator = () => {
+      return <div />;
+    };
+
+    return (
+      <div style={{boxShadow: '0px 0px 3px #DEDEDE'}}>
+        <Container>
+          <Row className="justify-content-center" style={{ paddingTop: 10, paddingBottom: 10, paddingRight: 10, paddingLeft: 10}}>
+
+             <Col xs="12">
+
+              <Row className="justify-content-center" style={{paddingTop: 12, }}>
+                <div style={{width: "70%", marginLeft: 10, marginRight: 5,}} >
+               
+                  <InputGroup >
+                    <Input onChange={e => this.handleSearchNameChange(e)} value={this.state.searchName} style={{ borderWidth:1.5, color:'black', fontSize: 15, height: 45, borderTopLeftRadius: 15, borderBottomLeftRadius: 15}} type="text" id="input1-group2" name="input1-group2" placeholder="Search Meals" />      
+                    <InputGroupAddon addonType="prepend">
+                      <Button onClick={() => this.searchNameClicked()} style={{borderTopRightRadius: 15, borderBottomRightRadius: 15}}  type="button" color="primary"><i className="fa fa-search"></i></Button>
+                    </InputGroupAddon>
+                  </InputGroup>
+                   
+                </div>
+
+                <Button style={{marginLeft: 5, padding: 10, borderRadius: 10, height: 45,}} onClick={() => this.toggleView()} color="primary" outline>
+                  {this.state.isMapView ? "List" : "Map"}
+                </Button>
+
+              </Row>
+
+            </Col>
+
+            <Col xs="12">
+              <Row className="justify-content-center" style={{paddingTop: 15, paddingBottom: 10}}>
+                 <img
+                  style={{
+                    objectFit: "cover",
+                    width: 30,
+                    height: 30,
+                    marginTop: 10
+                  }}
+                  alt={""}
+                  src={img.location_pin}
                   />
                
                <div style={{width: "80%", marginLeft: 10}} >
@@ -1639,7 +1701,6 @@ class SearchLunchChild extends Component {
       </div>
     )
   }
-
 
   renderEmptyItems() {
     return (
@@ -1762,7 +1823,7 @@ class SearchLunchChild extends Component {
     
       <NavBar stickTop={true} signIn={e=>this.signIn(e)}/>
 
-      {this.renderTopSearchBar()}
+      {this.state.isMobile? this.renderMobileTopBar() : this.renderTopSearchBar()}
 
       <div className="container-fluid">
 

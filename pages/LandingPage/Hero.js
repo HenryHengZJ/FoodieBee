@@ -174,14 +174,14 @@ class Hero extends React.Component {
       >
           <Row style={{margin:0, marginTop: 150, display:'flex',}} >
             
-            <Col style={{textAlign: 'center', color: 'white',}} xs="12">
-              <h1 style={{fontSize: 40}}>
+            <Col style={{textAlign: 'center', color: 'white'}} xs="12">
+              <h1 style={{fontSize: 40, fontWeight: '600'}}>
                 Get Lunch from just €6
               </h1>
             </Col>
 
             <Col style={{textAlign: 'center', color: 'white',}} xs="12">
-              <p style={{fontSize: 18, letterSpacing: 2, marginTop: 20}} className="big">
+              <p style={{fontSize: 21, letterSpacing: 1.5, marginTop: 20, fontWeight: '600'}} className="big">
                 Discover daily curated lunches from your favourite local restaurants
               </p>
             </Col>
