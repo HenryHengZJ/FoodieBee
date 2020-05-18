@@ -4,11 +4,11 @@ This is a fullstack web application for FoodieBee - An online marketplace platfo
 View live version here <a href="https://foodiebee.herokuapp.com/">View</a>
 
 
-![alt-text](https://github.com/HenryHengZJ/FoodieBee/blob/master/1.jpg)
-![alt-text](https://github.com/HenryHengZJ/FoodieBee/blob/master/2.jpg)
-![alt-text](https://github.com/HenryHengZJ/FoodieBee/blob/master/3.jpg)
-![alt-text](https://github.com/HenryHengZJ/FoodieBee/blob/master/4.jpg)
-![alt-text](https://github.com/HenryHengZJ/FoodieBee/blob/master/5.jpg)
+![alt-text](https://github.com/HenryHengZJ/FoodieBee/blob/master/1.JPG)
+![alt-text](https://github.com/HenryHengZJ/FoodieBee/blob/master/2.JPG)
+![alt-text](https://github.com/HenryHengZJ/FoodieBee/blob/master/3.JPG)
+![alt-text](https://github.com/HenryHengZJ/FoodieBee/blob/master/4.JPG)
+![alt-text](https://github.com/HenryHengZJ/FoodieBee/blob/master/5.JPG)
 
 ## Available Scripts
 
