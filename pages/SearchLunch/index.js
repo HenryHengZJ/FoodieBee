@@ -25,7 +25,7 @@ import NextSeo from 'next-seo';
 import { server } from '../../config';
 import SearchLunchChild from './SearchLunchChild';
 import getConfig from 'next/config'
-
+import Intercom from 'react-intercom';
 const {publicRuntimeConfig} = getConfig()
 const {STIRPE_CLIENT_KEY} = publicRuntimeConfig
 
@@ -98,6 +98,14 @@ class SearchLunch extends Component {
 
   render() {
 
+    const { appUser } = this.props;
+    
+    const user = {
+      user_id: "appUser.id",
+      email: "appUser.email",
+      name: "appUser.name"
+    };
+
     return (
       <Layout title={'FoodieBee GoLunch ' + this.state.companyName}>
       <NextSeo config={{ title: "FoodieBee GoLunch " + this.state.companyName }}/>
@@ -113,6 +121,9 @@ class SearchLunch extends Component {
         />
       </Elements>
       </StripeProvider>
+      <div className="app">
+        <Intercom appID="jbq2cw0m" { ...user } />
+      </div>
       </Layout>
     );
   }
